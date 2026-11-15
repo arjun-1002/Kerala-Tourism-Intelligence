@@ -1,8 +1,8 @@
-# Kerala Tourism Intelligence Platform (Flask Edition)
+# Kerala Tourism Business Intelligence Platform (Flask Edition)
 
 **Executive Footfall Dynamics, Google Trends Seasonality & Commercial Investment Screening**
 
-A modern web application built with **Python, Flask, Jinja2, Chart.js, HTML5, and CSS3** inspired directly by the executive Kerala Tourism Intelligence dashboard.
+A modern web application built with **Python, Flask, Jinja2, Chart.js, HTML5, and CSS3** inspired directly by the executive Kerala Tourism Business Intelligence dashboard.
 
 ---
 
@@ -24,8 +24,8 @@ A modern web application built with **Python, Flask, Jinja2, Chart.js, HTML5, an
 
 2. **Explore Destinations:**
    - Full directory of all **25 benchmark destinations**.
-   - Search bar, District filter (14 districts), Cluster filter, and Landscape filter.
-   - Interactive highlighted dossier view with road connectivity, railway hubs, airport proximity, and a direct button to the Profitability Calculator.
+   - Search bar, District filter (14 districts), Destination Type filter, and Landscape filter.
+   - Interactive highlighted destination details view with road connectivity, railway hubs, airport proximity, and a direct button to the Profitability Calculator.
 
 3. **Tourism Analysis:**
    - Stacked bar chart of commercial hospitality supply across Kerala districts.
@@ -67,11 +67,15 @@ A modern web application built with **Python, Flask, Jinja2, Chart.js, HTML5, an
 
 ## 🚀 How to Run the Application
 
-From the project root directory (`c:\Users\Harigovind\Downloads\TOURISM INTELLIGENCE`):
+The easiest way to run the application is from the project root directory:
 
+### Windows (1-Click Run):
+Double-click **`run.bat`** in the project root folder.
+
+### Command Line:
 ```powershell
-# Run the Flask application using the project's virtual environment:
-.\.venv\Scripts\python.exe 12_Frontend/app.py
+# From project root:
+python app.py
 ```
 
 The application will launch at:

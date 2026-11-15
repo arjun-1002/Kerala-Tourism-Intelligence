@@ -4,44 +4,403 @@
 {% block content %}
 <div class="page-header">
     <span class="page-eyebrow">Market Potential &amp; Strategy</span>
-    <h1 class="page-title">Hospitality Business Opportunities &amp; Market Gaps</h1>
+    <h1 class="page-title">Hospitality Business Opportunities &amp; Investment Potential</h1>
     <p class="page-lead">
-        High-potential tourism business concepts identified by comparing local hospitality supply against similar destinations and visitor footfall growth.
+        Explore high-demand tourism business concepts across Kerala, identified by comparing traveler footfall growth with local hospitality supply.
     </p>
 </div>
 
 <!-- METHODOLOGICAL DISCLAIMER -->
-<div class="disclaimer-box">
+<div class="disclaimer-box" style="margin-bottom:1.5rem;">
     <strong>How to Read These Opportunities:</strong>
-    We compare each destination's hotels, homestays, and dining options against other destinations of similar character and travel volume.
-    A higher positive opportunity score highlights underserved hospitality sectors where new ventures have strong room to expand.
+    We evaluate each destination's existing hotels, homestays, and dining options alongside visitor footfall.
+    Locations with growing traveler arrivals and limited local venues offer the strongest potential for new, high-yield ventures.
 </div>
 
-<!-- QUADRANT SUMMARY CARDS -->
+<!-- 1. TAILORED VENTURE ADVISORY (AT TOP WITH VISUAL DESTINATION SELECTOR & RICH SIGNALS) -->
+<div class="panel" id="rec-playbook-panel" style="margin-bottom:2rem; background:var(--surface-sage); border:1px solid #c9d8c4; border-radius:14px; padding:22px 24px; box-shadow:var(--shadow-sm);">
+    
+    <!-- EMBEDDED CSS FOR VISUAL RIBBON & HERO PROFILE -->
+    <style>
+        .dest-ribbon-container {
+            background: #ffffff;
+            border: 1px solid #c4d3bf;
+            border-radius: 12px;
+            padding: 16px 18px 12px 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .dest-ribbon {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 6px 2px 10px 2px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .dest-ribbon::-webkit-scrollbar {
+            height: 5px;
+        }
+        .dest-ribbon::-webkit-scrollbar-track {
+            background: #edf2eb;
+            border-radius: 10px;
+        }
+        .dest-ribbon::-webkit-scrollbar-thumb {
+            background: #b5c7b2;
+            border-radius: 10px;
+        }
+        .dest-ribbon::-webkit-scrollbar-thumb:hover {
+            background: var(--forest);
+        }
+        .dest-ribbon-card {
+            width: 140px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.18s ease-in-out;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+        }
+        .dest-ribbon-card:hover {
+            border-color: var(--forest);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+        }
+        .dest-ribbon-card.is-active {
+            border: 2px solid var(--forest);
+            background: #f4f8f4;
+            box-shadow: 0 4px 12px rgba(21, 71, 52, 0.14);
+            transform: translateY(-2px);
+        }
+        .dest-ribbon-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .ribbon-arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: var(--forest);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            z-index: 5;
+            transition: all 0.15s ease;
+        }
+        .ribbon-arrow-btn:hover {
+            background: var(--forest);
+            color: #ffffff;
+            border-color: var(--forest);
+        }
+        .ribbon-arrow-btn.prev {
+            left: -12px;
+        }
+        .ribbon-arrow-btn.next {
+            right: -12px;
+        }
+        .dest-hero-profile {
+            display: grid;
+            grid-template-columns: 210px 1fr;
+            gap: 18px;
+            background: #ffffff;
+            border: 1px solid #d4dfd2;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .dest-hero-profile {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <!-- VISUAL DESTINATION EXPLORER RIBBON -->
+    <div class="dest-ribbon-container">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+            <div>
+                <span style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--forest); letter-spacing:0.06em; display:block;">
+                    Destination Explorer &middot; 25 Benchmark Hubs
+                </span>
+                <span style="font-size:0.86rem; color:var(--ink-2);">
+                    Click any destination card below or use the search box to load its investment advisory:
+                </span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <input type="text" id="destSearchInput" placeholder="Filter destination or district..." style="padding:7px 12px; font-size:0.84rem; border:1px solid var(--border); border-radius:8px; width:220px; background:#ffffff;" />
+                <select id="recDestSelect" class="form-select" style="padding:7px 12px; font-size:0.84rem; border:1px solid var(--border); border-radius:8px; background:#ffffff; font-weight:600; cursor:pointer; width:auto; min-width:200px;">
+                    {% for dest in ranking %}
+                    <option value="{{ dest.Destination }}" {% if dest.Destination == default_brief_dest %}selected{% endif %}>
+                        #{{ loop.index }} {{ dest.Destination }} ({{ dest.District }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- HORIZONTAL DESTINATION CARDS RIBBON WITH ARROW CONTROLS -->
+        <div class="dest-ribbon-wrap">
+            <button type="button" class="ribbon-arrow-btn prev" onclick="scrollRibbon(-320)" aria-label="Scroll left">&#8592;</button>
+            <div class="dest-ribbon" id="destRibbon">
+                {% for dest in ranking %}
+                <div class="dest-ribbon-card {% if dest.Destination == default_brief_dest %}is-active{% endif %}"
+                     data-dest-name="{{ dest.Destination }}"
+                     data-dest-district="{{ dest.District }}"
+                     onclick="inspectRecommendation('{{ dest.Destination }}')">
+                    <div style="position:relative; height:68px; width:100%; overflow:hidden;">
+                        <img src="{{ dest.Photo_URL }}" alt="{{ dest.Destination }}" style="width:100%; height:100%; object-fit:cover;" />
+                        <span style="position:absolute; top:4px; left:4px; background:rgba(0,0,0,0.68); color:#ffffff; font-size:0.68rem; font-weight:700; padding:2px 6px; border-radius:4px;">
+                            #{{ loop.index }}
+                        </span>
+                    </div>
+                    <div style="padding:7px 9px 8px 9px;">
+                        <strong style="font-size:0.84rem; color:var(--ink); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            {{ dest.Destination }}
+                        </strong>
+                        <span style="font-size:0.72rem; color:var(--ink-3); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            {{ dest.District }} &middot; {{ dest.Landscape_Category }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="ribbon-arrow-btn next" onclick="scrollRibbon(320)" aria-label="Scroll right">&#8594;</button>
+        </div>
+    </div>
+
+    <!-- ACTIVE DESTINATION SPOTLIGHT HEADER (HERO PROFILE) -->
+    <div class="dest-hero-profile">
+        <div>
+            <img id="recHeroImg" src="{{ default_rec.photo_url if default_rec.photo_url else '/static/images/destinations/munnar.jpg' }}" alt="{{ default_rec.destination }}" style="width:100%; height:135px; object-fit:cover; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06);" />
+        </div>
+        <div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                <span id="recUrgencyBadge" class="{{ default_rec.badge_class }}" style="font-size:0.8rem; padding:4px 12px; font-weight:700;">
+                    {{ default_rec.urgency }}
+                </span>
+                <span id="recLandscapeBadge" class="badge-neutral" style="font-size:0.78rem;">
+                    {{ default_rec.landscape }}
+                </span>
+            </div>
+            <h2 class="font-serif" id="recDestTitle" style="font-size:1.6rem; font-weight:700; color:var(--ink); margin:4px 0 3px 0;">
+                {{ default_rec.destination }} &mdash; {{ default_rec.district }} District
+            </h2>
+            <p id="recTagline" style="font-size:0.88rem; font-style:italic; color:var(--ink-2); margin:0 0 8px 0; line-height:1.4;">
+                "{{ default_rec.tagline }}"
+            </p>
+            <div style="font-size:0.82rem; color:var(--ink-2);">
+                Focus: <strong id="recFocusLabel" style="color:var(--forest);">{{ default_rec.primary_concept }}</strong>
+                &middot; Market Status: <strong id="recStatusLabel" style="color:var(--ink);">{{ default_rec.category }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 USEFUL VITAL BUSINESS SIGNALS (EXECUTIVE SNAPSHOT) -->
+    <div class="grid-4" id="recSnapshotGrid" style="gap:12px; margin-bottom:20px;">
+        <!-- Signal 1: Footfall & Growth -->
+        <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:14px 16px;">
+            <span style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--forest); letter-spacing:0.05em; display:block; margin-bottom:4px;">Annual Footfall</span>
+            <div class="tabular" style="font-size:1.35rem; font-weight:800; color:var(--ink);" id="recVisitorsVal">
+                {{ "{:,}".format(default_rec.visitors_2024) }}
+            </div>
+            <p style="font-size:0.8rem; color:var(--ink-2); margin:4px 0 0 0; line-height:1.4;">
+                <strong id="recGrowthVal" class="{% if default_rec.growth >= 0 %}growth-pos{% else %}growth-neg{% endif %}">
+                    {{ "%+.1f"|format(default_rec.growth) }}%
+                </strong> 3-year visitor surge driving active daily dining &amp; lodging spend.
+            </p>
+        </div>
+
+        <!-- Signal 2: Existing Supply -->
+        <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:14px 16px;">
+            <span style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--forest); letter-spacing:0.05em; display:block; margin-bottom:4px;">Local Capacity</span>
+            <div class="tabular" style="font-size:1.35rem; font-weight:800; color:var(--ink);" id="recSupplyVal">
+                {{ default_rec.total_stays }} Stays &middot; {{ default_rec.dining_count }} Dining
+            </div>
+            <p style="font-size:0.8rem; color:var(--ink-2); margin:4px 0 0 0; line-height:1.4;" id="recSupplyBreakdown">
+                {{ default_rec.hotels }} Hotels &middot; {{ default_rec.resorts }} Resorts &middot; {{ default_rec.homestays }} Homestays
+            </p>
+        </div>
+
+        <!-- Signal 3: Quality Gap -->
+        <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:14px 16px;">
+            <span style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--forest); letter-spacing:0.05em; display:block; margin-bottom:4px;">Quality Benchmark</span>
+            <div class="tabular" style="font-size:1.35rem; font-weight:800; color:var(--ink);" id="recRatingVal">
+                {{ default_rec.lowest_rated_rating }} / 5.0
+            </div>
+            <p style="font-size:0.8rem; color:var(--ink-2); margin:4px 0 0 0; line-height:1.4;" id="recRatingNote">
+                Lowest sector rating (<span id="recRatingSector">{{ default_rec.lowest_rated_label }}</span>), indicating room for premium service.
+            </p>
+        </div>
+
+        <!-- Signal 4: Accessibility & Corridor -->
+        <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:14px 16px;">
+            <span style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--forest); letter-spacing:0.05em; display:block; margin-bottom:4px;">Corridor Access</span>
+            <div class="tabular" style="font-size:1.35rem; font-weight:800; color:var(--ink);" id="recAirportVal">
+                {{ default_rec.airport_km }} km
+            </div>
+            <p style="font-size:0.8rem; color:var(--ink-2); margin:4px 0 0 0; line-height:1.4;" id="recAirportNote">
+                To {{ default_rec.airport_name }}; accessible for road-trippers and weekenders.
+            </p>
+        </div>
+    </div>
+
+    <!-- 3 RANKED RECOMMENDATION CARDS -->
+    <div style="margin-bottom:10px;">
+        <span style="font-size:0.76rem; text-transform:uppercase; font-weight:800; color:var(--forest); letter-spacing:0.04em;">
+            Top 3 Ranked Business Ventures for {{ default_rec.destination }}:
+        </span>
+    </div>
+    <div class="grid-3" id="recRankedCardsGrid" style="gap:16px; margin-bottom:18px;">
+        {% for rec in default_rec.ranked_recommendations %}
+        <div style="background:var(--surface); border:2px solid {{ rec.border_color }}; border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 6px rgba(0,0,0,0.04); position:relative;">
+            <div>
+                <!-- Badge & Success Rate Header -->
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                    <span class="{{ rec.badge_class }}" style="font-size:0.78rem; font-weight:700; padding:4px 9px;">
+                        {{ rec.badge }}
+                    </span>
+                    <div style="display:inline-flex; align-items:center; gap:6px; background:{{ rec.accent_bg }}; border:1px solid #d1d5db; padding:4px 10px; border-radius:20px;">
+                        <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--ink-2);">Success Rate</span>
+                        <strong style="font-size:0.95rem; font-weight:800; color:{{ rec.rate_color }};">
+                            {{ rec.success_rate }}%
+                        </strong>
+                    </div>
+                </div>
+
+                <!-- Success Meter Bar -->
+                <div style="width:100%; height:6px; background:#e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:12px;">
+                    <div style="width:{{ rec.success_rate }}%; height:100%; background:{{ rec.rate_color }}; border-radius:10px;"></div>
+                </div>
+
+                <!-- Title -->
+                <h4 class="font-serif" style="font-size:1.18rem; font-weight:700; color:var(--ink); margin:0 0 6px 0; line-height:1.35; min-height:48px;">
+                    {{ rec.title }}
+                </h4>
+
+                <!-- Sector & Demand Pill -->
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                    <span style="font-size:0.74rem; background:var(--surface-muted); border:1px solid var(--border); padding:3px 8px; border-radius:6px; color:var(--ink); font-weight:600;">
+                        Sector: {{ rec.sector }}
+                    </span>
+                    <span style="font-size:0.74rem; background:var(--surface-muted); border:1px solid var(--border); padding:3px 8px; border-radius:6px; color:var(--forest); font-weight:600;">
+                        {{ rec.demand_driver }}
+                    </span>
+                </div>
+
+                <!-- Summary -->
+                <p style="font-size:0.83rem; color:var(--ink-2); line-height:1.5; margin:0 0 12px 0;">
+                    {{ rec.summary }}
+                </p>
+            </div>
+
+            <!-- Market Headroom & Simulate Button -->
+            <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.78rem;">
+                    <span style="color:var(--ink-3);">Current Supply:</span>
+                    <strong style="color:var(--ink);">{{ rec.market_need }}</strong>
+                </div>
+                <a href="{{ rec.calc_link }}" class="{% if rec.rank == 1 %}btn-gold{% else %}btn-primary{% endif %}" style="width:100%; text-align:center; padding:8px 12px; font-size:0.82rem; font-weight:700; display:block;">
+                    Simulate {{ rec.sector }} ROI &#8594;
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Grounded Rationale & Practical Action Steps -->
+    <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:16px 18px; margin-bottom:16px;">
+        <p id="recRationale" style="font-size:0.9rem; color:var(--ink); line-height:1.6; margin:0 0 12px 0;">
+            {{ default_rec.rationale }}
+        </p>
+        <div style="border-top:1px dashed #d4dfd2; padding-top:12px;">
+            <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--forest); letter-spacing:0.04em;">Practical Action Steps:</span>
+            <ul id="recBullets" style="margin:8px 0 0 0; padding-left:20px; font-size:0.86rem; color:var(--ink); line-height:1.6; display:flex; flex-direction:column; gap:6px;">
+                {% for bullet in default_rec.action_bullets %}
+                <li>{{ bullet }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- 4-SECTOR SUPPLY VS BENCHMARK -->
+    <div style="margin-bottom:16px;">
+        <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--forest); letter-spacing:0.04em; display:block; margin-bottom:8px;">
+            Hospitality Supply &amp; Quality Breakdown:
+        </span>
+        <div id="recSectorGrid" class="grid-4" style="gap:10px;">
+            {% for sec in default_rec.sectors %}
+            <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:13px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <strong style="font-size:0.9rem; color:var(--ink);">{{ sec.label }}</strong>
+                    {% if sec.is_zero %}
+                    <span class="badge-blue">0 Recorded</span>
+                    {% elif sec.cluster_gap > 0 %}
+                    <span class="badge-emerald">+{{ "%.0f"|format(sec.cluster_gap) }} More Needed</span>
+                    {% else %}
+                    <span class="badge-neutral">Well Supplied</span>
+                    {% endif %}
+                </div>
+                <div class="tabular" style="font-size:1.22rem; font-weight:800; color:var(--ink);">
+                    {{ sec.count }} <span style="font-size:0.8rem; font-weight:500; color:var(--ink-2);">vs. {{ sec.cluster_mean }} peer avg</span>
+                </div>
+                <div class="tabular" style="font-size:0.8rem; color:var(--ink-2); margin-top:4px;">
+                    Guest satisfaction: <strong style="color:var(--ink); font-weight:700;">{{ sec.rating }} / 5.0</strong>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Direct Action Links -->
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <a id="recCalcLink" href="/calculator?destination={{ default_rec.destination }}&venture={{ default_rec.primary_sector }}" class="btn-gold" style="padding:9px 18px; font-size:0.88rem; font-weight:700;">
+            Simulate {{ default_rec.primary_sector }} ROI for {{ default_rec.destination }} &#8594;
+        </a>
+        <a id="recTrendsLink" href="/google-trends?destination={{ default_rec.destination }}" class="btn-outline" style="padding:9px 18px; font-size:0.88rem;">
+            Inspect Search Demand Trends &#8594;
+        </a>
+    </div>
+</div>
+
+<!-- 2. QUADRANT SUMMARY CARDS -->
 <div class="grid-4" style="margin-bottom:1.5rem;">
     <div class="panel" style="border-top:3px solid var(--emerald); padding:16px 18px;">
-        <p class="kpi-label" style="color:var(--forest);">High Opportunity + Growing Demand</p>
+        <p class="kpi-label" style="color:var(--forest);">High Potential &amp; Growing Demand</p>
         <h3 class="tabular" style="margin:4px 0; font-size:1.65rem; color:var(--ink); font-weight:800;">14 <span style="font-size:0.86rem; color:var(--ink-2); font-weight:600;">destinations</span></h3>
         <p style="font-size:0.82rem; color:var(--ink-2); margin:0;">Surging footfall with strong room for new stays &amp; dining</p>
     </div>
     <div class="panel" style="border-top:3px solid var(--gold); padding:16px 18px;">
-        <p class="kpi-label" style="color:var(--gold-ink);">Undersupplied + Developing</p>
+        <p class="kpi-label" style="color:var(--gold-ink);">Undersupplied &amp; Developing</p>
         <h3 class="tabular" style="margin:4px 0; font-size:1.65rem; color:var(--ink); font-weight:800;">1 <span style="font-size:0.86rem; color:var(--ink-2); font-weight:600;">destination</span></h3>
         <p style="font-size:0.82rem; color:var(--ink-2); margin:0;">Lower supply, developing coastal visits (Meenkunnu)</p>
     </div>
     <div class="panel" style="border-top:3px solid var(--blue); padding:16px 18px;">
-        <p class="kpi-label" style="color:var(--blue);">Established Supply + Growing Demand</p>
+        <p class="kpi-label" style="color:var(--blue);">Established Market &amp; Growing</p>
         <h3 class="tabular" style="margin:4px 0; font-size:1.65rem; color:var(--ink); font-weight:800;">8 <span style="font-size:0.86rem; color:var(--ink-2); font-weight:600;">destinations</span></h3>
         <p style="font-size:0.82rem; color:var(--ink-2); margin:0;">Mature hubs with high room for premium differentiation (Munnar)</p>
     </div>
     <div class="panel" style="border-top:3px solid var(--rose); padding:16px 18px;">
-        <p class="kpi-label" style="color:var(--rose);">Mature &amp; Steady</p>
+        <p class="kpi-label" style="color:var(--rose);">Mature &amp; Well-Established</p>
         <h3 class="tabular" style="margin:4px 0; font-size:1.65rem; color:var(--ink); font-weight:800;">2 <span style="font-size:0.86rem; color:var(--ink-2); font-weight:600;">destinations</span></h3>
         <p style="font-size:0.82rem; color:var(--ink-2); margin:0;">Established hubs prioritizing quality experiences (Alappuzha, Wayanad)</p>
     </div>
 </div>
 
-<!-- SECTOR BREAKDOWN & TOP OPPORTUNITIES -->
+<!-- 3. SECTOR BREAKDOWN & TOP OPPORTUNITIES CHARTS -->
 <div class="split-40-60" style="margin-bottom:1.5rem;">
     <div class="panel">
         <div class="panel-header">
@@ -68,144 +427,64 @@
     </div>
 </div>
 
-<!-- INTERACTIVE DESTINATION RECOMMENDATION PLAYBOOK -->
-<div class="panel" id="rec-playbook-panel" style="margin-bottom:1.5rem;">
-    <div class="panel-header" style="flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:14px;">
-        <div>
-            <span class="page-eyebrow" style="margin-bottom:2px;">Tailored Venture Advisory</span>
-            <h3 class="panel-title">Destination Business Recommendation Playbook &mdash; <span id="recDestTitle">{{ default_rec.destination }}</span></h3>
-            <p style="font-size:0.85rem; color:var(--ink-2); margin-top:2px;">
-                Custom venture concepts sized from traveler demand, visitor ratings, and underserved hospitality sectors.
-            </p>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <label for="recDestSelect" class="form-label" style="margin:0;">Select Destination:</label>
-            <select id="recDestSelect" class="form-select" style="width:auto; min-width:220px; padding:8px 12px; font-size:0.9rem;">
-                {% for dest in ranking %}
-                <option value="{{ dest.Destination }}" {% if dest.Destination == default_brief_dest %}selected{% endif %}>
-                    {{ dest.Destination }} ({{ "%+.1f"|format(dest.Overall_Gap_Score) }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-
-    <!-- PRIMARY & SECONDARY ADVISORY BANNER -->
-    <div class="split-60-40" style="align-items:stretch; margin-bottom:14px;">
-        <div style="background:var(--surface-sage); border:1px solid #d4dfd2; border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; gap:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                <span id="recUrgencyBadge" class="{{ default_rec.badge_class }}">{{ default_rec.urgency }}</span>
-                <span id="recBaselineMeta" style="font-size:0.82rem; color:var(--ink-2);">Core Opportunity Fit: <strong style="color:var(--ink);">{{ default_rec.model_baseline }}</strong></span>
-            </div>
-            <div>
-                <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--forest); letter-spacing:0.04em;">Primary Recommended Concept</span>
-                <h4 id="recPrimaryConcept" class="font-serif" style="font-size:1.35rem; color:var(--ink); margin:3px 0 4px 0; font-weight:700;">{{ default_rec.primary_concept }}</h4>
-                <p id="recSecondaryLine" style="font-size:0.88rem; color:var(--ink-2); margin:0;">
-                    <strong style="color:var(--ink);">Secondary Headroom:</strong> {{ default_rec.secondary_label }}
-                </p>
-            </div>
-            <p id="recRationale" style="font-size:0.9rem; color:var(--ink); line-height:1.6; margin:0; padding-top:10px; border-top:1px solid #dde6da;">
-                {{ default_rec.rationale }}
-            </p>
-            <div id="recFlags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:auto;">
-                {% for flag in default_rec.risk_flags %}
-                <span class="{{ flag.class }}">{{ flag.label }}</span>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div style="background:var(--surface-muted); border:1px solid var(--border); border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between; gap:14px;">
-            <div>
-                <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--ink-2); letter-spacing:0.04em;">Execution &amp; Practical Notes</span>
-                <ul id="recBullets" style="margin:10px 0 0 0; padding-left:20px; font-size:0.88rem; color:var(--ink); line-height:1.6; display:flex; flex-direction:column; gap:8px;">
-                    {% for bullet in default_rec.action_bullets %}
-                    <li>{{ bullet }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <a id="recCalcLink" href="/calculator?destination={{ default_rec.destination }}&venture={{ default_rec.primary_sector }}" class="btn-primary" style="flex:1;">
-                    Simulate {{ default_rec.primary_sector }} ROI &#8594;
-                </a>
-                <a id="recTrendsLink" href="/google-trends?destination={{ default_rec.destination }}" class="btn-outline">
-                    Search Trends &#8594;
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4-SECTOR SUPPLY VS PEER BENCHMARK -->
-    <div id="recSectorGrid" class="grid-4" style="gap:10px;">
-        {% for sec in default_rec.sectors %}
-        <div style="background:var(--surface-muted); border:1px solid var(--border); border-radius:10px; padding:13px 14px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <strong style="font-size:0.9rem; color:var(--ink);">{{ sec.label }}</strong>
-                {% if sec.is_zero %}
-                <span class="badge-blue">0 Recorded</span>
-                {% elif sec.cluster_gap > 0 %}
-                <span class="badge-emerald">{{ "%+.1f"|format(sec.cluster_gap) }} Needed</span>
-                {% else %}
-                <span class="badge-neutral">{{ "%+.1f"|format(sec.cluster_gap) }} vs. Peer</span>
-                {% endif %}
-            </div>
-            <div class="tabular" style="font-size:1.22rem; font-weight:800; color:var(--ink);">
-                {{ sec.count }} <span style="font-size:0.8rem; font-weight:500; color:var(--ink-2);">vs. {{ sec.cluster_mean }} peer avg</span>
-            </div>
-            <div class="tabular" style="font-size:0.8rem; color:var(--ink-2); margin-top:4px;">
-                Public rating: <strong style="color:var(--ink); font-weight:700;">{{ sec.rating }} / 5.0</strong>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- COMPLETE OPPORTUNITY RANKING TABLE -->
-<div class="table-container">
+<!-- 4. COMPLETE 25-DESTINATION OPPORTUNITY RANKING -->
+<div class="table-container" id="opportunity-ranking-table">
     <div class="table-container-header">
         <div>
             <h3 class="panel-title">Complete 25-Destination Opportunity Ranking</h3>
-            <span class="panel-meta">Sorted by room for new ventures &middot; click Brief to inspect sector fit</span>
+            <span class="panel-meta">Ranked by hospitality gap and traveler demand &middot; click "Inspect Strategy" to view top 3 ranked ventures above</span>
         </div>
     </div>
     <div class="table-scroll">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Rank</th>
+                    <th style="width:60px;">Rank</th>
                     <th>Destination</th>
-                    <th>District</th>
-                    <th class="num">Opportunity Score</th>
+                    <th>Market Status</th>
+                    <th class="num">2024 Footfall</th>
                     <th class="num">3-Yr Growth</th>
-                    <th>Primary Recommended Concept</th>
-                    <th>Secondary Headroom</th>
-                    <th>Category</th>
-                    <th></th>
+                    <th>Primary Recommended Venture</th>
+                    <th class="num">Success Rate</th>
+                    <th>Alternative Opportunity</th>
+                    <th style="text-align:right;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for dest in ranking %}
                 <tr>
-                    <td class="num" style="text-align:left; color:var(--ink-2); font-weight:600;">#{{ loop.index }}</td>
-                    <td><strong>{{ dest.Destination }}</strong></td>
-                    <td style="color:var(--ink-2);">{{ dest.District }}</td>
-                    <td class="num {% if dest.Overall_Gap_Score > 0 %}growth-pos{% else %}growth-neg{% endif %}">
-                        {{ "%+.1f"|format(dest.Overall_Gap_Score) }}
-                    </td>
-                    <td class="num {% if dest.Growth_2022_2024 > 0 %}growth-pos{% else %}growth-neg{% endif %}">
-                        {{ "%+.1f"|format(dest.Growth_2022_2024) }}%
+                    <td class="num" style="text-align:left; color:var(--ink-2); font-weight:700;">#{{ loop.index }}</td>
+                    <td>
+                        <strong style="font-size:0.92rem; color:var(--ink);">{{ dest.Destination }}</strong>
+                        <div style="font-size:0.76rem; color:var(--ink-3);">{{ dest.District }} &middot; {{ dest.Landscape_Category }}</div>
                     </td>
                     <td>
-                        <strong style="color:var(--ink); font-size:0.88rem;">{{ dest.Primary_Concept }}</strong>
-                        <div style="font-size:0.78rem; color:var(--ink-2);">Core Fit: {{ dest.Recommended_Business }}</div>
-                    </td>
-                    <td style="font-size:0.84rem; color:var(--ink-2);">{{ dest.Secondary_Opportunity }}</td>
-                    <td>
-                        <span class="{% if 'High Gap + Positive' in dest.Opportunity_Category %}badge-emerald{% elif 'High Gap + Negative' in dest.Opportunity_Category %}badge-amber{% elif 'Low Gap + Positive' in dest.Opportunity_Category %}badge-blue{% else %}badge-rose{% endif %}">
+                        <span class="{% if 'High Potential' in dest.Opportunity_Category %}badge-emerald{% elif 'Undersupplied' in dest.Opportunity_Category %}badge-amber{% elif 'Established' in dest.Opportunity_Category %}badge-blue{% else %}badge-rose{% endif %}" style="font-size:0.74rem;">
                             {{ dest.Opportunity_Category }}
                         </span>
                     </td>
+                    <td class="num" style="font-weight:600; color:var(--ink);">
+                        {{ "{:,}".format(dest.Total_Visitors_2024) }}
+                    </td>
+                    <td class="num {% if dest.Growth_2022_2024 >= 0 %}growth-pos{% else %}growth-neg{% endif %}" style="font-weight:700;">
+                        {{ "%+.1f"|format(dest.Growth_2022_2024) }}%
+                    </td>
+                    <td>
+                        <strong style="color:var(--forest); font-size:0.86rem;">{{ dest.Primary_Concept }}</strong>
+                        <div style="font-size:0.76rem; color:var(--ink-2);">Category: {{ dest.Primary_Sector }}</div>
+                    </td>
                     <td class="num">
-                        <button type="button" class="btn-outline" style="padding:6px 12px; font-size:0.8rem;" onclick="inspectRecommendation('{{ dest.Destination }}')">Brief</button>
+                        <span style="background:#eaf5ea; border:1px solid #bbf7d0; color:#15803d; font-weight:800; font-size:0.82rem; padding:3px 8px; border-radius:12px; display:inline-block;">
+                            {{ dest.Success_Rate }}%
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-size:0.82rem; color:var(--ink-2); line-height:1.35;">{{ dest.Secondary_Opportunity }}</div>
+                    </td>
+                    <td style="text-align:right; white-space:nowrap;">
+                        <button type="button" class="btn-primary" style="padding:6px 12px; font-size:0.78rem;" onclick="inspectRecommendation('{{ dest.Destination }}')">
+                            Inspect Strategy &#8594;
+                        </button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -249,7 +528,7 @@
                 data: {
                     labels: {{ top_gap_labels | tojson }},
                     datasets: [{
-                        label: "Opportunity Index",
+                        label: "Opportunity Score",
                         data: {{ top_gap_values | tojson }},
                         backgroundColor: "#154734",
                         borderRadius: 5
@@ -274,6 +553,22 @@
         if (recSelect) {
             recSelect.addEventListener("change", () => renderRecBrief(recSelect.value));
         }
+
+        const searchInput = document.getElementById("destSearchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                const query = searchInput.value.toLowerCase().trim();
+                document.querySelectorAll(".dest-ribbon-card").forEach((card) => {
+                    const name = (card.getAttribute("data-dest-name") || "").toLowerCase();
+                    const dist = (card.getAttribute("data-dest-district") || "").toLowerCase();
+                    if (!query || name.includes(query) || dist.includes(query)) {
+                        card.style.display = "flex";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            });
+        }
     });
 
     const RECOMMENDATIONS_MAP = {{ recommendations_map | tojson }};
@@ -286,55 +581,222 @@
             .replace(/"/g, "&quot;");
     }
 
+    function renderRankedCardsHtml(rankedList) {
+        if (!rankedList || !rankedList.length) return "";
+        return rankedList.map(rec => {
+            const isRank1 = rec.rank === 1;
+            const btnClass = isRank1 ? "btn-gold" : "btn-primary";
+            return `
+            <div style="background:var(--surface); border:2px solid ${escRec(rec.border_color)}; border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 6px rgba(0,0,0,0.04); position:relative;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                        <span class="${escRec(rec.badge_class)}" style="font-size:0.78rem; font-weight:700; padding:4px 9px;">
+                            ${escRec(rec.badge)}
+                        </span>
+                        <div style="display:inline-flex; align-items:center; gap:6px; background:${escRec(rec.accent_bg)}; border:1px solid #d1d5db; padding:4px 10px; border-radius:20px;">
+                            <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--ink-2);">Success Rate</span>
+                            <strong style="font-size:0.95rem; font-weight:800; color:${escRec(rec.rate_color)};">
+                                ${rec.success_rate}%
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div style="width:100%; height:6px; background:#e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:12px;">
+                        <div style="width:${rec.success_rate}%; height:100%; background:${escRec(rec.rate_color)}; border-radius:10px;"></div>
+                    </div>
+
+                    <h4 class="font-serif" style="font-size:1.18rem; font-weight:700; color:var(--ink); margin:0 0 6px 0; line-height:1.35; min-height:48px;">
+                        ${escRec(rec.title)}
+                    </h4>
+
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                        <span style="font-size:0.74rem; background:var(--surface-muted); border:1px solid var(--border); padding:3px 8px; border-radius:6px; color:var(--ink); font-weight:600;">
+                            Sector: ${escRec(rec.sector)}
+                        </span>
+                        <span style="font-size:0.74rem; background:var(--surface-muted); border:1px solid var(--border); padding:3px 8px; border-radius:6px; color:var(--forest); font-weight:600;">
+                            ${escRec(rec.demand_driver)}
+                        </span>
+                    </div>
+
+                    <p style="font-size:0.83rem; color:var(--ink-2); line-height:1.5; margin:0 0 12px 0;">
+                        ${escRec(rec.summary)}
+                    </p>
+                </div>
+
+                <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.78rem;">
+                        <span style="color:var(--ink-3);">Current Supply:</span>
+                        <strong style="color:var(--ink);">${escRec(rec.market_need)}</strong>
+                    </div>
+                    <a href="${escRec(rec.calc_link)}" class="${btnClass}" style="width:100%; text-align:center; padding:8px 12px; font-size:0.82rem; font-weight:700; display:block;">
+                        Simulate ${escRec(rec.sector)} ROI &#8594;
+                    </a>
+                </div>
+            </div>
+            `;
+        }).join("");
+    }
+
     function renderRecBrief(destName) {
         const rec = RECOMMENDATIONS_MAP[destName];
         if (!rec) return;
 
-        document.getElementById("recDestTitle").innerText = rec.destination;
-        const badge = document.getElementById("recUrgencyBadge");
-        badge.className = rec.badge_class;
-        badge.innerText = rec.urgency;
+        // Keep Select Sync
+        const sel = document.getElementById("recDestSelect");
+        if (sel && sel.value !== destName) {
+            sel.value = destName;
+        }
 
-        document.getElementById("recBaselineMeta").innerHTML = `Core Opportunity Fit: <strong style="color:var(--ink);">${escRec(rec.model_baseline)}</strong>`;
-        document.getElementById("recPrimaryConcept").innerText = rec.primary_concept;
-        document.getElementById("recSecondaryLine").innerHTML = `<strong style="color:var(--ink);">Secondary Headroom:</strong> ${escRec(rec.secondary_label)}`;
-        document.getElementById("recRationale").innerText = rec.rationale;
+        // Highlight Active Card in Ribbon & Scroll Centered
+        document.querySelectorAll(".dest-ribbon-card").forEach((card) => {
+            if (card.getAttribute("data-dest-name") === destName) {
+                card.classList.add("is-active");
+                card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+            } else {
+                card.classList.remove("is-active");
+            }
+        });
 
-        document.getElementById("recFlags").innerHTML = (rec.risk_flags || [])
-            .map((f) => `<span class="${escRec(f.class)}">${escRec(f.label)}</span>`)
-            .join("");
+        // Spotlight Hero Header
+        const heroImg = document.getElementById("recHeroImg");
+        if (heroImg) {
+            heroImg.src = rec.photo_url || "/static/images/destinations/munnar.jpg";
+            heroImg.alt = rec.destination;
+        }
 
-        document.getElementById("recBullets").innerHTML = (rec.action_bullets || [])
-            .map((b) => `<li>${escRec(b)}</li>`)
-            .join("");
+        const titleEl = document.getElementById("recDestTitle");
+        if (titleEl) {
+            titleEl.innerText = `${rec.destination} — ${rec.district} District`;
+        }
 
+        const tagEl = document.getElementById("recTagline");
+        if (tagEl) {
+            tagEl.innerText = `"${rec.tagline || ''}"`;
+        }
+
+        const urgencyBadge = document.getElementById("recUrgencyBadge");
+        if (urgencyBadge) {
+            urgencyBadge.className = rec.badge_class;
+            urgencyBadge.innerText = rec.urgency;
+        }
+
+        const landscapeBadge = document.getElementById("recLandscapeBadge");
+        if (landscapeBadge) {
+            landscapeBadge.innerText = rec.landscape;
+        }
+
+        const focusLabel = document.getElementById("recFocusLabel");
+        if (focusLabel) {
+            focusLabel.innerText = rec.primary_concept;
+        }
+
+        const statusLabel = document.getElementById("recStatusLabel");
+        if (statusLabel) {
+            statusLabel.innerText = rec.category;
+        }
+
+        // Signal 1: Footfall & Growth
+        const visEl = document.getElementById("recVisitorsVal");
+        if (visEl) visEl.innerText = Number(rec.visitors_2024 || 0).toLocaleString();
+
+        const growthEl = document.getElementById("recGrowthVal");
+        if (growthEl) {
+            const g = Number(rec.growth || 0);
+            growthEl.className = g >= 0 ? "growth-pos" : "growth-neg";
+            growthEl.innerText = (g >= 0 ? "+" : "") + g.toFixed(1) + "%";
+        }
+
+        // Signal 2: Supply
+        const supplyVal = document.getElementById("recSupplyVal");
+        if (supplyVal) {
+            supplyVal.innerText = `${rec.total_stays || 0} Stays · ${rec.dining_count || 0} Dining`;
+        }
+        const supplyBreakdown = document.getElementById("recSupplyBreakdown");
+        if (supplyBreakdown) {
+            supplyBreakdown.innerText = `${rec.hotels || 0} Hotels · ${rec.resorts || 0} Resorts · ${rec.homestays || 0} Homestays`;
+        }
+
+        // Signal 3: Quality
+        const ratingVal = document.getElementById("recRatingVal");
+        if (ratingVal) {
+            ratingVal.innerText = `${Number(rec.lowest_rated_rating || 4.0).toFixed(1)} / 5.0`;
+        }
+        const ratingSector = document.getElementById("recRatingSector");
+        if (ratingSector) {
+            ratingSector.innerText = rec.lowest_rated_label || "hospitality";
+        }
+
+        // Signal 4: Transit
+        const airportVal = document.getElementById("recAirportVal");
+        if (airportVal) {
+            airportVal.innerText = `${rec.airport_km || 0} km`;
+        }
+        const airportNote = document.getElementById("recAirportNote");
+        if (airportNote) {
+            airportNote.innerText = `To ${escRec(rec.airport_name || "Airport")}; accessible for road-trippers and weekenders.`;
+        }
+
+        // 3 Ranked Cards
+        const rankedContainer = document.getElementById("recRankedCardsGrid");
+        if (rankedContainer) {
+            rankedContainer.innerHTML = renderRankedCardsHtml(rec.ranked_recommendations);
+        }
+
+        // Rationale & Bullets
+        const ratEl = document.getElementById("recRationale");
+        if (ratEl) ratEl.innerText = rec.rationale;
+
+        const bulEl = document.getElementById("recBullets");
+        if (bulEl) {
+            bulEl.innerHTML = (rec.action_bullets || [])
+                .map((b) => `<li>${escRec(b)}</li>`)
+                .join("");
+        }
+
+        // Action Links
         const calcLink = document.getElementById("recCalcLink");
-        calcLink.href = `/calculator?destination=${encodeURIComponent(rec.destination)}&venture=${encodeURIComponent(rec.primary_sector)}`;
-        calcLink.innerHTML = `Simulate ${escRec(rec.primary_sector)} ROI &#8594;`;
+        if (calcLink) {
+            calcLink.href = `/calculator?destination=${encodeURIComponent(rec.destination)}&venture=${encodeURIComponent(rec.primary_sector)}`;
+            calcLink.innerHTML = `Simulate ${escRec(rec.primary_sector)} ROI for ${escRec(rec.destination)} &#8594;`;
+        }
 
-        document.getElementById("recTrendsLink").href = `/google-trends?destination=${encodeURIComponent(rec.destination)}`;
+        const trendsLink = document.getElementById("recTrendsLink");
+        if (trendsLink) {
+            trendsLink.href = `/google-trends?destination=${encodeURIComponent(rec.destination)}`;
+        }
 
-        document.getElementById("recSectorGrid").innerHTML = (rec.sectors || []).map((s) => {
-            const pill = s.is_zero
-                ? `<span class="badge-blue">0 Recorded</span>`
-                : (s.cluster_gap > 0
-                    ? `<span class="badge-emerald">${s.cluster_gap >= 0 ? "+" : ""}${Number(s.cluster_gap).toFixed(1)} Needed</span>`
-                    : `<span class="badge-neutral">${s.cluster_gap >= 0 ? "+" : ""}${Number(s.cluster_gap).toFixed(1)} vs. Peer</span>`);
-            return `
-                <div style="background:var(--surface-muted); border:1px solid var(--border); border-radius:10px; padding:13px 14px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                        <strong style="font-size:0.9rem; color:var(--ink);">${escRec(s.label)}</strong>
-                        ${pill}
+        // 4-Sector Grid
+        const secGrid = document.getElementById("recSectorGrid");
+        if (secGrid) {
+            secGrid.innerHTML = (rec.sectors || []).map((s) => {
+                const pill = s.is_zero
+                    ? `<span class="badge-blue">0 Recorded</span>`
+                    : (s.cluster_gap > 0
+                        ? `<span class="badge-emerald">+${Math.round(s.cluster_gap)} More Needed</span>`
+                        : `<span class="badge-neutral">Well Supplied</span>`);
+                return `
+                    <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:13px 14px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                            <strong style="font-size:0.9rem; color:var(--ink);">${escRec(s.label)}</strong>
+                            ${pill}
+                        </div>
+                        <div class="tabular" style="font-size:1.22rem; font-weight:800; color:var(--ink);">
+                            ${s.count} <span style="font-size:0.8rem; font-weight:500; color:var(--ink-2);">vs. ${s.cluster_mean} peer avg</span>
+                        </div>
+                        <div class="tabular" style="font-size:0.8rem; color:var(--ink-2); margin-top:4px;">
+                            Guest satisfaction: <strong style="color:var(--ink); font-weight:700;">${Number(s.rating).toFixed(1)} / 5.0</strong>
+                        </div>
                     </div>
-                    <div class="tabular" style="font-size:1.22rem; font-weight:800; color:var(--ink);">
-                        ${s.count} <span style="font-size:0.8rem; font-weight:500; color:var(--ink-2);">vs. ${s.cluster_mean} peer avg</span>
-                    </div>
-                    <div class="tabular" style="font-size:0.8rem; color:var(--ink-2); margin-top:4px;">
-                        Public rating: <strong style="color:var(--ink); font-weight:700;">${Number(s.rating).toFixed(1)} / 5.0</strong>
-                    </div>
-                </div>
-            `;
-        }).join("");
+                `;
+            }).join("");
+        }
+    }
+
+    function scrollRibbon(offset) {
+        const ribbon = document.getElementById("destRibbon");
+        if (ribbon) {
+            ribbon.scrollBy({ left: offset, behavior: 'smooth' });
+        }
     }
 
     function inspectRecommendation(destName) {

@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% set active_page = 'visitor_growth' %}
 
+{% block title %}Visitor Growth & Footfall Trends — Kerala Tourism Business Intelligence{% endblock %}
+
 {% block content %}
 <div class="page-header">
-    <span class="page-eyebrow">Footfall Series (2022–2024)</span>
-    <h1 class="page-title">Visitor Growth &amp; Segment Analysis</h1>
+    <span class="page-eyebrow">Footfall Trends &amp; Arrivals</span>
+    <h1 class="page-title">Viewer Growth &amp; Footfall Analysis</h1>
     <p class="page-lead">
-        Domestic and international tourist arrivals from 2022 through 2024 alongside destination-level data lineage notes.
+        Domestic and international tourist footfall from 2022 through 2024 across 25 benchmark travel destinations.
     </p>
 </div>
 
@@ -64,7 +66,7 @@
 <div class="split-55-45" style="margin-bottom:1.5rem;">
     <div class="panel">
         <div class="panel-header">
-            <h3 class="panel-title">3-Year Visitor Growth by Destination (%)</h3>
+            <h3 class="panel-title">3-Year Viewer Growth by Destination (%)</h3>
         </div>
         <div class="chart-stage-tall" style="height:370px;">
             <canvas id="growthRankingChart"></canvas>

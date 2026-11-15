@@ -4,6 +4,85 @@ An end-to-end data science pipeline and interactive Flask web application analyz
 
 ---
 
+## 🚀 Quick Start (Easiest Way to Run)
+
+Anyone downloading or cloning this repository can run the application with **zero manual environment setup**:
+
+### 🪟 Windows (1-Click Run)
+Simply double-click **`run.bat`** (or execute `.\run.bat` in PowerShell / Command Prompt).
+> `run.bat` automatically detects Python, creates a fresh virtual environment (`.venv`), installs all dependencies from `requirements.txt`, starts the web server, and opens **`http://127.0.0.1:5000`** in your default browser.
+
+### 🍎 macOS & 🐧 Linux (1-Click Run)
+Open your terminal in the project folder and run:
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+---
+
+## 💻 Manual Setup & Execution (Any Platform)
+
+If you prefer to configure and run the project manually:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/arjun-1002/Kerala-Tourism-Intelligence.git
+cd Kerala-Tourism-Intelligence
+
+# 2. Create a virtual environment
+python -m venv .venv
+
+# 3. Activate the virtual environment
+# Windows (PowerShell):
+.\.venv\Scripts\Activate.ps1
+# Windows (Command Prompt):
+.\.venv\Scripts\activate.bat
+# macOS / Linux:
+source .venv/bin/activate
+
+# 4. Install dependencies
+pip install -r requirements.txt
+
+# 5. Launch the web platform
+python app.py
+```
+Then open **[http://127.0.0.1:5000](http://127.0.0.1:5000)** in your browser.
+
+---
+
+## 📦 GitHub & Upload Guidelines
+
+### ⚠️ Why `.venv` and `.git` Are NOT Uploaded Directly
+- **`.venv` (Virtual Environment):** Contains 400MB+ of operating-system-specific compiled binaries and hardcoded local file paths (e.g. `C:\Users\...`). If `.venv` is uploaded to GitHub and downloaded on another computer, Python commands will fail with `No Python at '...'`. The `.gitignore` file intentionally excludes `.venv/`. Instead, each user generates their own local environment instantly using `run.bat` or `python -m venv .venv`.
+- **`.git` (Version Control):** The `.git` folder stores Git's internal commit database and should never be manually zipped, copied, or uploaded through GitHub's web interface (which rejects hidden folders). Git communicates directly with GitHub via `git push`. Do not create a duplicate folder named `git/`.
+
+### 📤 How to Push Updates to GitHub
+
+#### Option A: Using Git Command Line (Recommended)
+```bash
+# 1. Check modified files
+git status
+
+# 2. Stage all project files (ignoring .venv automatically)
+git add .
+
+# 3. Commit your changes
+git commit -m "Add root runner, requirements, and update documentation"
+
+# 4. Push to GitHub
+git push origin main
+```
+
+#### Option B: Using GitHub Desktop
+1. Open **GitHub Desktop**.
+2. Click **File** -> **Add Local Repository** -> Select this folder (`Kerala-Tourism-Intelligence Updates`).
+3. You will see all modified code and newly added files (`app.py`, `run.bat`, `run.sh`, `requirements.txt`). `.venv` is automatically ignored.
+4. Type a summary in the bottom-left box and click **Commit to main**.
+5. Click **Push origin** in the top bar.
+
+---
+
 ## Project Architecture
 
 ```text
@@ -20,6 +99,12 @@ TOURISM INTELLIGENCE/
 ├── 10_Documentation/         # Supporting documentation folder
 ├── 11_Presentation/          # Presentation materials folder
 ├── 12_Frontend/              # Interactive Flask web application & REST JSON endpoints
+├── .gitignore                # Comprehensive git exclusions (.venv, __pycache__, etc.)
+├── app.py                    # Root entry point to launch the web platform
+├── requirements.txt          # Universal Python dependencies
+├── run.bat                   # 1-Click Windows launcher (auto-installs & launches)
+├── run.ps1                   # 1-Click PowerShell launcher
+├── run.sh                    # 1-Click macOS/Linux launcher
 └── README.md                 # Project documentation (this file)
 ```
 
@@ -39,6 +124,20 @@ The code from `04_Notebooks/` has been refactored into single-responsibility Pyt
 | `05_Source_Code/business_opportunities.py` | Computes cluster-relative infrastructure deficits (`Overall_Gap_Score`), 2x2 opportunity quadrants (`classify_opportunity`), and statewide gap recommendations (`get_best_recommendation`). | `02_data_cleaning.ipynb` & `04_profitability_estimator.ipynb` |
 | `05_Source_Code/profitability_estimator.py` | `calculate_profitability`, `get_destination_details`, `tourism_business_estimator`, and 2-destination comparison table & chart. | `04_profitability_estimator.ipynb` (Cells 14–24, 29–34) |
 | `05_Source_Code/run_pipeline.py` | Runs all 7 pipeline stages sequentially in one command (`--save` optional). | Full `01`–`04` workflow |
+
+```powershell
+# Full end-to-end dry-run (verifies all 7 stages without overwriting CSVs/plots)
+python 05_Source_Code\run_pipeline.py
+
+# Or run any individual stage
+python 05_Source_Code\data_loading.py
+python 05_Source_Code\preprocessing.py
+python 05_Source_Code\clustering.py
+python 05_Source_Code\visitor_growth_analysis.py
+python 05_Source_Code\google_trends_analysis.py
+python 05_Source_Code\business_opportunities.py
+python 05_Source_Code\profitability_estimator.py --destination Kumarakom --compare-with Munnar
+```
 
 ---
 
@@ -83,24 +182,16 @@ Opportunities are evaluated through two complementary lenses:
 
 The user-facing web dashboard is built with **Flask**, **Jinja2**, **Chart.js / Plotly**, custom SVG branding (`static/images/logo.svg`), and tailored destination imagery.
 
-### Frontend Modules
-- `12_Frontend/app.py` — Flask routes, template rendering, and JSON APIs
-- `12_Frontend/data_loader.py` — Loads master CSV, Google Trends, visitor growth, cluster profiles, and results
-- `12_Frontend/analysis.py` — Aggregates multi-pillar Google Trends timelines, normalization coverage, and destination keyword rankings
-- `12_Frontend/recommendations.py` — Builds enriched destination business concepts, venture presets, cluster gaps, demand drivers, and seasonality guidance
-- `12_Frontend/profitability.py` — Investment ROI, payback period, and 5-year cumulative cash-flow projections
-
 ### Available Web Pages & API Endpoints
 
 | Route | Purpose |
 | :--- | :--- |
 | `/` | Home dashboard with Kerala KPIs, cluster spotlight, and interactive Google Trends demand curve |
 | `/destinations` | Explorer cards & detail modals across all 25 destinations with tailored recommendations |
-| `/tourism-analysis` | Deep-dive infrastructure & tourism metrics across destinations |
+| `/tourism-analysis` | Deep-dive infrastructure & visitor footfall growth metrics across destinations |
 | `/clustering` | Cluster breakdown and Silhouette Score comparison across the 3 scaling/PCA modes |
 | `/opportunities` | Business opportunity quadrant ranking and rich destination business concepts |
 | `/google-trends` | Detailed India Google Trends analysis across 4 demand pillars (`All`, `1y`, `3y`, `All-time`) |
-| `/visitor-growth` | 2022–2024 visitor growth rankings and estimation transparency breakdown |
 | `/comparison` | Side-by-side infrastructure, rating, growth, and gap comparison between two destinations |
 | `/calculator` | Interactive Tourism Business ROI & 5-year cash-flow simulator with destination presets |
 | `/culture-guide` | Kerala cultural & seasonal travel context guide |
@@ -109,41 +200,6 @@ The user-facing web dashboard is built with **Flask**, **Jinja2**, **Chart.js / 
 | `/api/trends/<name>` | JSON destination interest series (`?period=1y\|3y\|all`) |
 | `/api/google-trends/<name>` | JSON multi-pillar series & keyword breakdown (`?pillar=...&period=...`) |
 | `/api/calculate-profitability` | `POST` endpoint returning monthly/annual profit, payback months, ROI %, and 5-year cash flow |
-
----
-
-## Setup & Usage
-
-### 1. Environment Setup (Windows PowerShell)
-```powershell
-# Activate virtual environment (if already created at .venv/)
-.\.venv\Scripts\Activate.ps1
-
-# Install dependencies if needed
-.\.venv\Scripts\python.exe -m pip install -r 12_Frontend\requirements.txt
-```
-
-### 2. Run the Modular Data Pipeline (`05_Source_Code/`)
-```powershell
-# Full end-to-end dry-run (verifies all 7 stages without overwriting CSVs/plots)
-.\.venv\Scripts\python.exe 05_Source_Code\run_pipeline.py
-
-# Or run any individual stage
-.\.venv\Scripts\python.exe 05_Source_Code\data_loading.py
-.\.venv\Scripts\python.exe 05_Source_Code\preprocessing.py
-.\.venv\Scripts\python.exe 05_Source_Code\clustering.py
-.\.venv\Scripts\python.exe 05_Source_Code\visitor_growth_analysis.py
-.\.venv\Scripts\python.exe 05_Source_Code\google_trends_analysis.py
-.\.venv\Scripts\python.exe 05_Source_Code\business_opportunities.py
-.\.venv\Scripts\python.exe 05_Source_Code\profitability_estimator.py --destination Kumarakom --compare-with Munnar
-```
-Pass `--save` to any stage script or `run_pipeline.py` to regenerate and persist CSVs and PNG plots.
-
-### 3. Launch the Flask Web Application
-```powershell
-.\.venv\Scripts\python.exe 12_Frontend\app.py
-```
-Then open **http://127.0.0.1:5000** in your browser.
 
 ---
 

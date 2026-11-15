@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="page-header">
-    <span class="page-eyebrow">Directory & Inventory</span>
+    <span class="page-eyebrow">Directory &amp; Inventory</span>
     <h1 class="page-title">Explore Kerala Destinations</h1>
     <p class="page-lead">
         Hospitality infrastructure counts, transit proximity, and 2022–2024 footfall across all 25 benchmark corridors.
@@ -51,65 +51,42 @@
     </form>
 </div>
 
-<!-- HIGHLIGHTED DOSSIER VIEW (IF SELECTED) -->
+<!-- HIGHLIGHTED DESTINATION DETAILS (IF SELECTED) -->
 {% if highlight_dest %}
-<div class="dossier-card">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:12px;">
+<div class="dossier-card" id="destination-highlight-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:12px;">
         <div>
-            <span class="badge-emerald">Destination Dossier</span>
-            <h2 class="font-serif" style="font-size:1.55rem; font-weight:600; color:var(--ink); margin:4px 0 0 0;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <span class="badge-emerald">Destination Details</span>
+                <span class="badge-neutral">{{ highlight_dest.Landscape_Category }}</span>
+            </div>
+            <h2 class="font-serif" style="font-size:1.6rem; font-weight:700; color:var(--ink); margin:0;">
                 {{ highlight_dest.Destination }} &mdash; {{ highlight_dest.District }} District
             </h2>
         </div>
-        <a href="/destinations" class="btn-outline" style="padding:5px 12px; font-size:0.78rem;">Close Dossier</a>
+        <a href="/destinations" class="btn-outline" style="padding:6px 14px; font-size:0.8rem;">&times; Close Details</a>
     </div>
 
-    <div class="dossier-split">
+    <!-- TOP SECTION: PHOTO & TAGLINE ON LEFT, 8 METRICS & TRANSIT SUMMARY ON RIGHT -->
+    <div class="dossier-split" style="margin-bottom:18px;">
+        <!-- Left: Destination Photo & Tagline -->
         <div>
-            <img src="{{ highlight_dest.Photo_URL }}" style="width:100%; height:210px; object-fit:cover; border-radius:10px; margin-bottom:10px;" alt="{{ highlight_dest.Destination }}" />
-            <p style="font-size:0.84rem; font-style:italic; color:var(--ink-2); margin-bottom:12px;">"{{ highlight_dest.Tagline }}"</p>
-            <div style="background:var(--surface-muted); border:1px solid var(--border); padding:12px; border-radius:10px; font-size:0.82rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px;">
-                    <span style="color:var(--ink-3); font-size:0.7rem; text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">Venture Recommendation</span>
-                    <span class="{{ highlight_rec.badge_class if highlight_rec else 'badge-neutral' }}">{{ highlight_rec.urgency if highlight_rec else highlight_dest.Opportunity_Category }}</span>
-                </div>
-                <p style="margin:0 0 4px 0; color:var(--forest); font-weight:700; font-size:0.88rem;">
-                    {{ highlight_rec.primary_concept if highlight_rec else highlight_dest.Recommended_Business }}
-                </p>
-                {% if highlight_rec %}
-                <p style="margin:0 0 6px 0; color:var(--ink-2); font-size:0.84rem; line-height:1.5;">
-                    <strong style="color:var(--ink);">Secondary:</strong> {{ highlight_rec.secondary_label }}
-                </p>
-                <p style="margin:0 0 8px 0; color:var(--ink); font-size:0.84rem; line-height:1.55;">
-                    {{ highlight_rec.rationale }}
-                </p>
-                <div style="display:flex; flex-wrap:wrap; gap:5px;">
-                    {% for flag in highlight_rec.risk_flags %}
-                    <span class="{{ flag.class }}" style="font-size:0.74rem;">{{ flag.label }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-            <a href="/calculator?destination={{ highlight_dest.Destination }}&venture={{ highlight_rec.primary_sector if highlight_rec else 'Homestay' }}" class="btn-gold" style="width:100%; margin-top:12px;">
-                Simulate {{ highlight_rec.primary_sector if highlight_rec else 'Venture' }} Returns for {{ highlight_dest.Destination }} &#8594;
-            </a>
-            <a href="/opportunities?destination={{ highlight_dest.Destination }}" class="btn-outline" style="width:100%; margin-top:8px;">
-                Open Full Venture Brief &#8594;
-            </a>
-            <a href="/google-trends?destination={{ highlight_dest.Destination }}" class="btn-outline" style="width:100%; margin-top:8px;">
-                Inspect Search Demand Trends &#8594;
-            </a>
+            <img src="{{ highlight_dest.Photo_URL }}" style="width:100%; height:205px; object-fit:cover; border-radius:10px; box-shadow:var(--shadow-xs);" alt="{{ highlight_dest.Destination }}" />
+            <p style="font-size:0.86rem; font-style:italic; color:var(--ink-2); margin:8px 0 0 0; line-height:1.4;">
+                "{{ highlight_dest.Tagline }}"
+            </p>
         </div>
 
+        <!-- Right: 8 Core Metric Tiles & Transit Box -->
         <div>
-            <div class="grid-4" style="gap:10px; margin-bottom:12px;">
+            <div class="grid-4" style="gap:10px; margin-bottom:10px;">
                 <div class="metric-tile"><span>Hotels</span><h3>{{ highlight_dest.Hotels | int }}</h3></div>
                 <div class="metric-tile"><span>Resorts</span><h3>{{ highlight_dest.Resorts | int }}</h3></div>
                 <div class="metric-tile"><span>Homestays</span><h3>{{ highlight_dest.Homestays_Vacation_Rentals | int }}</h3></div>
                 <div class="metric-tile"><span>Restaurants</span><h3>{{ highlight_dest.Restaurants | int }}</h3></div>
             </div>
 
-            <div class="grid-4" style="gap:10px; margin-bottom:16px;">
+            <div class="grid-4" style="gap:10px; margin-bottom:12px;">
                 <div class="metric-tile"><span>Attractions</span><h3>{{ highlight_dest.Attraction_Count | int }}</h3></div>
                 <div class="metric-tile"><span>Airport Dist.</span><h3>{{ highlight_dest.Nearest_Airport_Distance_km_numeric | round(0) | int }} km</h3></div>
                 <div class="metric-tile"><span>2024 Footfall</span><h3>{{ "{:,}".format(highlight_dest.Total_Visitors_2024) }}</h3></div>
@@ -126,6 +103,123 @@
                 <div><strong>Nearest Airport:</strong> {{ highlight_dest.Nearest_Airport }} ({{ highlight_dest.Airport_Distance }})</div>
                 <div><strong>Highway Corridors:</strong> {{ highlight_dest.Main_Road_or_Highway }} &middot; {{ highlight_dest.Road_Accessibility }}</div>
             </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM SECTION: RANKED BUSINESS RECOMMENDATIONS SHOWCASE -->
+    <div style="background:var(--surface-sage); border:1px solid #c9d8c4; border-radius:14px; padding:22px 24px; box-shadow:var(--shadow-xs);">
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; margin-bottom:18px; border-bottom:1px solid #d4dfd2; padding-bottom:14px;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                    <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--forest); letter-spacing:0.04em;">Venture Opportunities &amp; Market Feasibility</span>
+                    <span class="{{ highlight_rec.badge_class if highlight_rec else 'badge-emerald' }}">
+                        {{ highlight_rec.urgency if highlight_rec else highlight_dest.Opportunity_Category }}
+                    </span>
+                </div>
+                <h3 class="font-serif" style="font-size:1.55rem; font-weight:700; color:var(--ink); margin:2px 0 4px 0;">
+                    Top 3 Ranked Business Opportunities for {{ highlight_dest.Destination }}
+                </h3>
+                <p style="font-size:0.86rem; color:var(--ink-2); margin:0;">
+                    Ranked by traveler demand growth, quality benchmark headroom, and local supply deficits.
+                </p>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                {% if highlight_rec %}
+                    {% for flag in highlight_rec.risk_flags %}
+                    <span class="{{ flag.class }}" style="font-size:0.75rem;">{{ flag.label }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span class="badge-emerald" style="font-size:0.75rem;">Verified Tourism Records</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 3 RANKED RECOMMENDATION CARDS (FULL PROMINENCE FOR ALL 3 RANKS) -->
+        <div class="grid-3" style="gap:16px; margin-bottom:18px;">
+            {% if highlight_rec and highlight_rec.ranked_recommendations %}
+                {% for rec in highlight_rec.ranked_recommendations %}
+                <div style="background:var(--surface); border:2px solid {{ rec.border_color }}; border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 6px rgba(0,0,0,0.04); position:relative;">
+                    <div>
+                        <!-- Badge & Success Rate Header -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                            <span class="{{ rec.badge_class }}" style="font-size:0.78rem; font-weight:700; padding:4px 9px;">
+                                {{ rec.badge }}
+                            </span>
+                            <div style="display:inline-flex; align-items:center; gap:6px; background:{{ rec.accent_bg }}; border:1px solid #d1d5db; padding:4px 10px; border-radius:20px;">
+                                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--ink-2);">Success Rate</span>
+                                <strong style="font-size:0.95rem; font-weight:800; color:{{ rec.rate_color }};">
+                                    {{ rec.success_rate }}%
+                                </strong>
+                            </div>
+                        </div>
+
+                        <!-- Success Meter Bar -->
+                        <div style="width:100%; height:6px; background:#e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:12px;">
+                            <div style="width:{{ rec.success_rate }}%; height:100%; background:{{ rec.rate_color }}; border-radius:10px;"></div>
+                        </div>
+
+                        <!-- Title -->
+                        <h4 class="font-serif" style="font-size:1.18rem; font-weight:700; color:var(--ink); margin:0 0 6px 0; line-height:1.35; min-height:48px;">
+                            {{ rec.title }}
+                        </h4>
+
+                        <!-- Sector & Demand Pill -->
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                            <span style="font-size:0.74rem; background:var(--surface-muted); border:1px solid var(--border); padding:3px 8px; border-radius:6px; color:var(--ink); font-weight:600;">
+                                Sector: {{ rec.sector }}
+                            </span>
+                            <span style="font-size:0.74rem; background:var(--surface-muted); border:1px solid var(--border); padding:3px 8px; border-radius:6px; color:var(--forest); font-weight:600;">
+                                {{ rec.demand_driver }}
+                            </span>
+                        </div>
+
+                        <!-- Summary -->
+                        <p style="font-size:0.83rem; color:var(--ink-2); line-height:1.5; margin:0 0 12px 0;">
+                            {{ rec.summary }}
+                        </p>
+                    </div>
+
+                    <!-- Market Headroom & Simulate Button -->
+                    <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.78rem;">
+                            <span style="color:var(--ink-3);">Current Supply:</span>
+                            <strong style="color:var(--ink);">{{ rec.market_need }}</strong>
+                        </div>
+                        <a href="{{ rec.calc_link }}" class="{% if rec.rank == 1 %}btn-gold{% else %}btn-primary{% endif %}" style="width:100%; text-align:center; padding:8px 12px; font-size:0.82rem; font-weight:700; display:block;">
+                            Simulate {{ rec.sector }} ROI &#8594;
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- DESTINATION OVERVIEW & PRACTICAL ACTION STEPS -->
+        <div style="background:var(--surface); border:1px solid #d4dfd2; border-radius:10px; padding:16px 18px; margin-bottom:16px;">
+            <p style="font-size:0.9rem; color:var(--ink); line-height:1.6; margin:0 0 12px 0;">
+                {{ highlight_rec.rationale if highlight_rec else 'Strong market potential supported by high visitor volumes and steady traveler traffic.' }}
+            </p>
+            {% if highlight_rec and highlight_rec.action_bullets %}
+            <div style="border-top:1px dashed #d4dfd2; padding-top:12px;">
+                <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--forest); letter-spacing:0.04em;">Practical Action Steps:</span>
+                <ul style="margin:8px 0 0 0; padding-left:20px; font-size:0.86rem; color:var(--ink); line-height:1.6; display:flex; flex-direction:column; gap:6px;">
+                    {% for bullet in highlight_rec.action_bullets %}
+                    <li>{{ bullet }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ACTION CTAS ROW -->
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <a href="/opportunities?destination={{ highlight_dest.Destination }}" class="btn-primary" style="padding:9px 18px; font-size:0.88rem;">
+                Open Full Opportunity Brief &#8594;
+            </a>
+            <a href="/google-trends?destination={{ highlight_dest.Destination }}" class="btn-outline" style="padding:9px 18px; font-size:0.88rem;">
+                Inspect Search Demand Trends &#8594;
+            </a>
         </div>
     </div>
 </div>
@@ -153,7 +247,7 @@
                     <h3 style="font-size:1.08rem; font-weight:700; color:var(--ink);">{{ dest.Destination }}</h3>
                     <span style="font-size:0.74rem; color:var(--ink-3);">{{ dest.District }} District</span>
                 </div>
-                <span class="{% if 'High Gap + Positive' in dest.Opportunity_Category %}badge-emerald{% elif 'High Gap + Negative' in dest.Opportunity_Category %}badge-amber{% elif 'Low Gap + Positive' in dest.Opportunity_Category %}badge-blue{% else %}badge-rose{% endif %}">
+                <span class="{% if 'High Potential' in dest.Opportunity_Category %}badge-emerald{% elif 'Undersupplied' in dest.Opportunity_Category %}badge-amber{% elif 'Established' in dest.Opportunity_Category %}badge-blue{% else %}badge-rose{% endif %}">
                     {{ dest.Opportunity_Category }}
                 </span>
             </div>
@@ -180,7 +274,7 @@
             </div>
 
             <div class="grid-2" style="gap:8px;">
-                <a href="/destinations?highlight={{ dest.Destination }}" class="btn-primary" style="padding:7px 10px; font-size:0.77rem;">View Dossier</a>
+                <a href="/destinations?highlight={{ dest.Destination }}" class="btn-primary" style="padding:7px 10px; font-size:0.77rem;">View Details</a>
                 <a href="/calculator?destination={{ dest.Destination }}&venture={{ dest.Primary_Sector }}" class="btn-gold" style="padding:7px 10px; font-size:0.77rem;">Profitability</a>
             </div>
         </div>
