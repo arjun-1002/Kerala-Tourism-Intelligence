@@ -1,29 +1,74 @@
 {% extends 'base.html' %}
 {% set active_page = 'dashboard' %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    .roster-toggle-group {
+        display: inline-flex;
+        background: var(--surface-muted);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 2px;
+    }
+    .roster-toggle-btn {
+        border: none;
+        background: transparent;
+        padding: 3px 10px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--ink-2);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .roster-toggle-btn.active {
+        background: var(--forest);
+        color: #ffffff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .kerala-map-popup .leaflet-popup-content-wrapper {
+        border-radius: 12px;
+        padding: 4px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.16);
+    }
+    .kerala-map-popup .leaflet-popup-content {
+        margin: 8px 10px;
+        line-height: 1.4;
+    }
+    .kerala-map-pin {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+    .kerala-map-pin:hover svg path {
+        filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45));
+        transform: scale(1.15);
+        transform-origin: bottom center;
+        transition: all 0.18s ease;
+    }
+    .kerala-map-pin.is-active svg path {
+        stroke: #f59e0b !important;
+        stroke-width: 3.5 !important;
+        filter: drop-shadow(0 3px 8px rgba(245, 158, 11, 0.75));
+    }
+</style>
+{% endblock %}
+
 {% block top_bar %}
 <!-- HERO BANNER -->
 <section class="hero-banner">
     <div class="hero-left">
-        <span class="hero-eyebrow">Kerala Tourism Intelligence</span>
-        <h1 class="hero-title">Kerala Tourism Intelligence</h1>
+        <span class="hero-eyebrow">Kerala Tourism Business Intelligence</span>
+        <h1 class="hero-title">Kerala Tourism Business Intelligence</h1>
         <p class="hero-subtitle">
             Explore traveler footfall, seasonal search demand, and high-potential hospitality opportunities across 25 premier destinations.
         </p>
         <div class="hero-tag-pills">
             <span class="hero-pill hero-pill-season">Peak Season: Oct – Mar</span>
-            <a href="/culture-guide" class="hero-pill hero-pill-culture">Kerala Culture Guide</a>
-            <a href="/about" class="hero-pill">Dataset: 2022–2024</a>
+            <a href="/about" class="hero-pill">Official Records: 2022–2024</a>
         </div>
-    </div>
-
-    <div class="hero-search-container">
-        <form action="/destinations" method="GET" class="search-box">
-            <input type="text" name="search" id="hero-search-input" list="kerala-dest-options" class="search-input" placeholder="Search a destination (e.g. Munnar)..." />
-            <button type="submit" class="search-btn" aria-label="Search destinations">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </button>
-        </form>
     </div>
 </section>
 
@@ -92,16 +137,22 @@
     </div>
 </div>
 
-<!-- 3-COLUMN OVERVIEW -->
+<!-- 3-COLUMN CORE CORRIDOR -->
 <div class="corridor-grid">
-    <!-- COLUMN 1: DESTINATIONS ROSTER -->
+    <!-- COLUMN 1: KERALA SIGNPOST ROSTER -->
     <div class="roster-card">
         <div class="roster-header">
-            <h4>Destination Roster</h4>
-            <span>25 hubs</span>
+            <div>
+                <h4 style="margin:0;">Destination Roster</h4>
+                <span style="font-size:0.75rem; color:var(--ink-3);">25 hubs</span>
+            </div>
+            <div class="roster-toggle-group">
+                <button type="button" class="roster-toggle-btn active" id="btnRosterList" onclick="setRosterView('list')">List</button>
+                <button type="button" class="roster-toggle-btn" id="btnRosterMap" onclick="setRosterView('map')">Map</button>
+            </div>
         </div>
 
-        <div class="landscape-pills">
+        <div class="landscape-pills" id="rosterFilterPills">
             <button type="button" class="landscape-pill active" onclick="filterRoster('All Destinations', this)">All</button>
             <button type="button" class="landscape-pill" onclick="filterRoster('Hills', this)">Hills</button>
             <button type="button" class="landscape-pill" onclick="filterRoster('Backwaters', this)">Backwaters</button>
@@ -109,15 +160,24 @@
             <button type="button" class="landscape-pill" onclick="filterRoster('Urban', this)">Urban</button>
         </div>
 
-        <div class="roster-list">
+        <!-- LIST VIEW (DEFAULT IN ROSTER) -->
+        <div class="roster-list" id="rosterListView" style="display:block;">
             {% for dest in destinations %}
             <button type="button" class="roster-btn {% if dest.Destination == default_dest.Destination %}active{% endif %}"
                     data-category="{{ dest.Landscape_Category }}"
+                    data-dest-name="{{ dest.Destination }}"
                     onclick="selectDestination('{{ dest.Destination }}', this)">
                 <span>{{ dest.Destination }}</span>
                 <span class="tag">{{ dest.District }}</span>
             </button>
             {% endfor %}
+        </div>
+
+        <!-- MAP VIEW (TOGGLEABLE) -->
+        <div id="rosterMapView" style="display:none; flex:1; width:100%; height:350px; border-radius:10px; overflow:hidden; border:1px solid var(--border); margin-top:4px; position:relative;">
+            <div style="position:absolute; bottom:8px; left:8px; z-index:500; background:rgba(255,255,255,0.92); backdrop-filter:blur(4px); padding:3px 8px; border-radius:6px; font-size:0.68rem; font-weight:700; color:var(--ink-2); border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.08); pointer-events:none;">
+                Tap pin to inspect
+            </div>
         </div>
     </div>
 
@@ -183,7 +243,7 @@
             </ul>
 
             <a id="spotlight-explore-btn" href="/destinations?highlight={{ default_dest.Destination }}" class="spotlight-btn">
-                Explore Destination Details &#8594;
+                View Destination Details &#8594;
             </a>
         </div>
     </div>
@@ -251,7 +311,7 @@
 
 <!-- FEATURED DESTINATIONS GALLERY ROW -->
 <div>
-    <h2 class="section-heading">Featured Destinations</h2>
+    <h2 class="section-heading">Featured Corridors</h2>
     <div class="featured-grid">
         {% for feat in featured_destinations %}
         <article class="media-card">
@@ -272,7 +332,7 @@
                 </p>
                 <div class="media-card-footer">
                     <span class="tabular" style="font-size:0.74rem; color:var(--ink-3);">Stays: <strong style="color:var(--ink);">{{ feat.Hotels + feat.Resorts + feat.Homestays_Vacation_Rentals }}</strong></span>
-                    <a href="/destinations?highlight={{ feat.Destination }}" class="btn-outline" style="padding:6px 12px; font-size:0.82rem;">Explore Destination</a>
+                    <a href="/destinations?highlight={{ feat.Destination }}" class="btn-outline" style="padding:5px 11px; font-size:0.75rem;">View Details</a>
                 </div>
             </div>
         </article>
@@ -283,10 +343,168 @@
 
 {% block extra_scripts %}
 <script>
+    const destinationsData = {{ destinations | tojson }};
+    let rosterMapInstance = null;
+    let rosterMapMarkers = [];
+    let currentSelectedDest = "{{ default_dest.Destination }}";
+
+    function getCategoryColor(cat) {
+        switch (cat) {
+            case "Hills": return "#154734";
+            case "Backwaters": return "#0284c7";
+            case "Coastal": return "#d97706";
+            case "Urban": return "#7c3aed";
+            default: return "#154734";
+        }
+    }
+
+    function createPinIcon(color, isActive = false) {
+        const strokeColor = isActive ? "#f59e0b" : "#ffffff";
+        const strokeWidth = isActive ? 3.5 : 2;
+        const filterStyle = isActive
+            ? "drop-shadow(0 3px 8px rgba(245, 158, 11, 0.75))"
+            : "drop-shadow(0 2px 4px rgba(0,0,0,0.32))";
+        const innerCircle = isActive ? "#fef08a" : "#ffffff";
+
+        return L.divIcon({
+            className: "kerala-map-pin" + (isActive ? " is-active" : ""),
+            html: `
+                <div style="width:26px; height:32px; filter:${filterStyle}; transition:transform 0.15s ease;">
+                    <svg width="26" height="32" viewBox="0 0 28 34" fill="none">
+                        <path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 34 14 34C14 34 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="${color}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>
+                        <circle cx="14" cy="13" r="${isActive ? 6 : 5}" fill="${innerCircle}"/>
+                    </svg>
+                </div>
+            `,
+            iconSize: [26, 32],
+            iconAnchor: [13, 32],
+            popupAnchor: [0, -30]
+        });
+    }
+
+    function setRosterView(view) {
+        const listEl = document.getElementById("rosterListView");
+        const mapEl = document.getElementById("rosterMapView");
+        const btnList = document.getElementById("btnRosterList");
+        const btnMap = document.getElementById("btnRosterMap");
+
+        if (view === "map") {
+            if (listEl) listEl.style.display = "none";
+            if (mapEl) mapEl.style.display = "block";
+            if (btnList) btnList.classList.remove("active");
+            if (btnMap) btnMap.classList.add("active");
+
+            if (!rosterMapInstance) {
+                initRosterMiniMap();
+            } else {
+                setTimeout(() => rosterMapInstance.invalidateSize(), 60);
+            }
+        } else {
+            if (listEl) listEl.style.display = "block";
+            if (mapEl) mapEl.style.display = "none";
+            if (btnList) btnList.classList.add("active");
+            if (btnMap) btnMap.classList.remove("active");
+
+            const activeBtn = listEl ? listEl.querySelector(".roster-btn.active") : null;
+            if (activeBtn) {
+                activeBtn.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }
+        }
+    }
+
+    window.currentRosterFilter = "All Destinations";
+
+    window.filterRosterMap = function(category) {
+        window.currentRosterFilter = category;
+        if (!rosterMapInstance) return;
+        rosterMapMarkers.forEach(marker => {
+            const cat = marker.destData.Landscape_Category;
+            if (category === "All Destinations" || category === "All" || cat === category) {
+                if (!rosterMapInstance.hasLayer(marker)) {
+                    marker.addTo(rosterMapInstance);
+                }
+            } else {
+                if (rosterMapInstance.hasLayer(marker)) {
+                    rosterMapInstance.removeLayer(marker);
+                }
+            }
+        });
+    };
+
+    window.highlightRosterMarker = function(destName) {
+        currentSelectedDest = destName;
+        if (!rosterMapMarkers || rosterMapMarkers.length === 0) return;
+        rosterMapMarkers.forEach(marker => {
+            const isMatch = (marker.destData.Destination === destName);
+            const color = getCategoryColor(marker.destData.Landscape_Category);
+            marker.setIcon(createPinIcon(color, isMatch));
+            marker.setZIndexOffset(isMatch ? 1000 : 0);
+        });
+    };
+
+    function initRosterMiniMap() {
+        const el = document.getElementById("rosterMapView");
+        if (!el || typeof L === "undefined") return;
+
+        rosterMapInstance = L.map("rosterMapView", {
+            center: [10.35, 76.35],
+            zoom: 6.85,
+            zoomSnap: 0.1,
+            zoomDelta: 0.5,
+            minZoom: 6.0,
+            maxZoom: 13.0,
+            zoomControl: false,
+            attributionControl: false
+        });
+
+        // 100% Free OpenStreetMap raster tiles - zero API keys required, zero watermarks
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(rosterMapInstance);
+
+        L.control.zoom({ position: "bottomright" }).addTo(rosterMapInstance);
+
+        destinationsData.forEach(dest => {
+            const lat = parseFloat(dest.Latitude);
+            const lng = parseFloat(dest.Longitude);
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            const isInitial = (dest.Destination === currentSelectedDest);
+            const color = getCategoryColor(dest.Landscape_Category);
+            const icon = createPinIcon(color, isInitial);
+            const marker = L.marker([lat, lng], { icon: icon });
+
+            marker.bindTooltip(`<strong>${dest.Destination}</strong><br><span style="font-size:0.75rem; color:#607368;">${dest.District} &middot; ${dest.Landscape_Category}</span>`, {
+                permanent: false,
+                direction: "top",
+                offset: [0, -28]
+            });
+
+            marker.on("click", function () {
+                window.highlightRosterMarker(dest.Destination);
+                selectDestination(dest.Destination, null);
+            });
+
+            marker.destData = dest;
+            marker.addTo(rosterMapInstance);
+            if (isInitial) marker.setZIndexOffset(1000);
+            rosterMapMarkers.push(marker);
+        });
+
+        if (window.currentRosterFilter && window.currentRosterFilter !== "All Destinations" && window.currentRosterFilter !== "All") {
+            window.filterRosterMap(window.currentRosterFilter);
+        }
+
+        setTimeout(() => rosterMapInstance.invalidateSize(), 80);
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const initialDates = {{ initial_trends.dates | tojson }};
         const initialScores = {{ initial_trends.scores | tojson }};
         renderTrendsChart("{{ default_dest.Destination }}", initialDates, initialScores);
+
+        // Destination Roster defaults to List view; Map is initialized on user toggle
 
         const clusterCtx = document.getElementById("clusterPieChart");
         if (clusterCtx) {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Kerala Tourism Intelligence{% endblock %}</title>
+    <title>{% block title %}Kerala Tourism Business Intelligence{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logo.svg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,8 +37,8 @@
                     </svg>
                 </div>
                 <div class="brand-text">
-                    <h2>Kerala</h2>
-                    <p>Tourism Intelligence</p>
+                    <h2>Kerala Tourism</h2>
+                    <p>Business Intelligence</p>
                 </div>
             </a>
 
@@ -53,8 +53,8 @@
                 <a href="/opportunities" class="top-nav-link {% if active_page == 'opportunities' %}active{% endif %}">
                     <span>Opportunities</span>
                 </a>
-                <a href="/clustering" class="top-nav-link {% if active_page == 'clustering' %}active{% endif %}">
-                    <span>Destination Profiles</span>
+                <a href="/tourism-analysis" class="top-nav-link {% if active_page == 'tourism_analysis' %}active{% endif %}">
+                    <span>Tourism Analysis</span>
                 </a>
                 <a href="/comparison" class="top-nav-link {% if active_page == 'comparison' %}active{% endif %}">
                     <span>Compare</span>
@@ -62,25 +62,11 @@
 
                 <!-- INSIGHTS DROPDOWN -->
                 <div class="top-nav-dropdown" id="insightsDropdown">
-                    <button type="button" class="top-nav-link dropdown-toggle {% if active_page in ['tourism_analysis', 'visitor_growth', 'google_trends', 'culture_guide', 'about'] %}active{% endif %}" onclick="toggleDropdown(event)">
+                    <button type="button" class="top-nav-link dropdown-toggle {% if active_page in ['google_trends', 'about'] %}active{% endif %}" onclick="toggleDropdown(event)">
                         <span>Insights</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <div class="dropdown-menu">
-                        <a href="/tourism-analysis" class="dropdown-item {% if active_page == 'tourism_analysis' %}active{% endif %}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                            <div>
-                                <strong>Tourism Overview</strong>
-                                <small>Hospitality supply & ratings</small>
-                            </div>
-                        </a>
-                        <a href="/visitor-growth" class="dropdown-item {% if active_page == 'visitor_growth' %}active{% endif %}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-                            <div>
-                                <strong>Visitor Growth</strong>
-                                <small>2022–2024 footfall patterns</small>
-                            </div>
-                        </a>
                         <a href="/google-trends" class="dropdown-item {% if active_page == 'google_trends' %}active{% endif %}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                             <div>
@@ -89,13 +75,6 @@
                             </div>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="/culture-guide" class="dropdown-item {% if active_page == 'culture_guide' %}active{% endif %}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                            <div>
-                                <strong>Culture & Heritage Guide</strong>
-                                <small>Arts, backwaters & festivals</small>
-                            </div>
-                        </a>
                         <a href="/about" class="dropdown-item {% if active_page == 'about' %}active{% endif %}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                             <div>
@@ -113,8 +92,13 @@
                 </a>
             </nav>
 
-            <!-- RIGHT SEARCH & MOBILE TOGGLE -->
+            <!-- RIGHT SECTION: CULTURE GUIDE, SEARCH & MOBILE TOGGLE -->
             <div class="topbar-right">
+                <a href="/culture-guide" class="topbar-culture-link {% if active_page == 'culture_guide' %}active{% endif %}" title="Kerala Culture, Arts & Heritage Guide">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    <span>Culture Guide</span>
+                </a>
+
                 <form action="/destinations" method="GET" class="topbar-search">
                     <input type="text" name="search" list="kerala-dest-options" class="topbar-search-input" placeholder="Search destination..." />
                     <button type="submit" class="topbar-search-btn" aria-label="Search destinations">
@@ -133,10 +117,8 @@
             <a href="/" class="mobile-nav-link {% if active_page == 'dashboard' %}active{% endif %}">Home</a>
             <a href="/destinations" class="mobile-nav-link {% if active_page == 'destinations' %}active{% endif %}">Destinations Explorer</a>
             <a href="/opportunities" class="mobile-nav-link {% if active_page == 'opportunities' %}active{% endif %}">Business Opportunities</a>
-            <a href="/clustering" class="mobile-nav-link {% if active_page == 'clustering' %}active{% endif %}">Destination Profiles</a>
+            <a href="/tourism-analysis" class="mobile-nav-link {% if active_page == 'tourism_analysis' %}active{% endif %}">Tourism Analysis</a>
             <a href="/comparison" class="mobile-nav-link {% if active_page == 'comparison' %}active{% endif %}">Compare Destinations</a>
-            <a href="/tourism-analysis" class="mobile-nav-link {% if active_page == 'tourism_analysis' %}active{% endif %}">Tourism Overview</a>
-            <a href="/visitor-growth" class="mobile-nav-link {% if active_page == 'visitor_growth' %}active{% endif %}">Visitor Growth</a>
             <a href="/google-trends" class="mobile-nav-link {% if active_page == 'google_trends' %}active{% endif %}">Search Demand Trends</a>
             <a href="/calculator" class="mobile-nav-link {% if active_page == 'calculator' %}active{% endif %}">ROI Calculator</a>
             <a href="/culture-guide" class="mobile-nav-link {% if active_page == 'culture_guide' %}active{% endif %}">Kerala Culture Guide</a>
@@ -150,7 +132,7 @@
             <div class="content-wrapper">
                 {% block top_bar %}
                 <div class="subpage-breadcrumb-bar">
-                    <span class="subpage-kicker"><strong>Kerala Tourism Intelligence</strong> &middot; 25 Benchmark Travel Destinations</span>
+                    <span class="subpage-kicker"><strong>Kerala Tourism Business Intelligence</strong> &middot; 25 Benchmark Travel Destinations</span>
                     <a href="/destinations" style="font-size:0.78rem; color:var(--forest); text-decoration:none; font-weight:600;">Browse all destinations &#8594;</a>
                 </div>
                 {% endblock %}
@@ -161,10 +143,10 @@
                 <!-- GLOBAL FOOTER -->
                 <footer class="app-footer">
                     <div>
-                        <strong style="color: var(--ink); font-weight: 600;">Kerala Tourism Intelligence</strong>
+                        <strong style="color: var(--ink); font-weight: 600;">Kerala Tourism Business Intelligence</strong>
                         <span> &mdash; Discover destinations, evaluate hospitality opportunities, and plan new travel ventures with confidence.</span>
                     </div>
-                    <div>25 Destinations &middot; 14 Districts &middot; Kerala Travel Intelligence</div>
+                    <div>25 Destinations &middot; 14 Districts &middot; Kerala Business Intelligence</div>
                 </footer>
             </div>
         </main>

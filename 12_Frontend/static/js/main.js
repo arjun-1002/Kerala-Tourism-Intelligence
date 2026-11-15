@@ -90,19 +90,28 @@ function initSearchAutocomplete() {
 
 function filterRoster(category, btnEl) {
   document.querySelectorAll(".landscape-pill").forEach(el => el.classList.remove("active"));
-  btnEl.classList.add("active");
+  if (btnEl) btnEl.classList.add("active");
 
   const items = document.querySelectorAll(".roster-btn");
   items.forEach(item => {
     const itemCat = item.getAttribute("data-category");
-    item.style.display = (category === "All Destinations" || itemCat === category) ? "flex" : "none";
+    item.style.display = (category === "All Destinations" || category === "All" || itemCat === category) ? "flex" : "none";
   });
+
+  if (typeof window.filterRosterMap === "function") {
+    window.filterRosterMap(category);
+  }
 }
 
 async function selectDestination(destName, btnEl) {
-  if (btnEl) {
-    document.querySelectorAll(".roster-btn").forEach(el => el.classList.remove("active"));
-    btnEl.classList.add("active");
+  const targetBtn = btnEl || document.querySelector(`.roster-btn[data-dest-name="${destName}"]`);
+  document.querySelectorAll(".roster-btn").forEach(el => el.classList.remove("active"));
+  if (targetBtn) {
+    targetBtn.classList.add("active");
+  }
+
+  if (typeof window.highlightRosterMarker === "function") {
+    window.highlightRosterMarker(destName);
   }
 
   const titleEl = document.getElementById("trend-dest-name");
@@ -124,14 +133,12 @@ async function selectDestination(destName, btnEl) {
     console.error("Error loading trends:", err);
   }
 
-  if (btnEl) {
-    try {
-      const dRes = await fetch(`/api/destination/${encodeURIComponent(destName)}`);
-      const dData = await dRes.json();
-      updateSpotlightCard(dData);
-    } catch (err) {
-      console.error("Error loading spotlight:", err);
-    }
+  try {
+    const dRes = await fetch(`/api/destination/${encodeURIComponent(destName)}`);
+    const dData = await dRes.json();
+    updateSpotlightCard(dData);
+  } catch (err) {
+    console.error("Error loading spotlight:", err);
   }
 }
 

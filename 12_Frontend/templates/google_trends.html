@@ -6,7 +6,7 @@
     <span class="page-eyebrow">Search Demand Intelligence ({{ overview.kpis.date_range }})</span>
     <h1 class="page-title">Google Trends Demand &amp; Seasonality Analysis</h1>
     <p class="page-lead">
-        Traveler search interest across {{ overview.kpis.total_destinations }} Kerala destinations, tracking {{ overview.kpis.unique_terms }} keywords across stays, dining, and activities across India.
+        Multi-intent search behavior across {{ overview.kpis.total_destinations }} Kerala tourism corridors, {{ overview.kpis.unique_terms }} search terms, and four demand pillars (India geography, {{ overview.kpis.months_count }} monthly windows).
     </p>
 </div>
 
@@ -50,7 +50,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <div class="kpi-text">
-            <p class="kpi-label">Benchmark Destinations</p>
+            <p class="kpi-label">Benchmark Corridors</p>
             <h3 class="kpi-value">{{ overview.kpis.verified_norm_hubs }} Key Hubs</h3>
             <p class="kpi-subtext">Munnar, Thekkady, Vagamon, Wayanad</p>
         </div>
@@ -82,7 +82,7 @@
     <!-- EXPLORER CONTROLS -->
     <div class="gt-controls-grid" style="margin-bottom:16px;">
         <div>
-            <label for="gt-dest-select" class="form-label">Destination</label>
+            <label for="gt-dest-select" class="form-label">Destination Corridor</label>
             <select id="gt-dest-select" class="form-select">
                 {% for d in all_destinations %}
                 <option value="{{ d }}" {% if d == selected_dest %}selected{% endif %}>{{ d }}</option>
@@ -161,7 +161,7 @@
             </div>
 
             <a id="gt-dossier-link" href="/destinations?highlight={{ selected_dest }}" class="btn-outline" style="width:100%;">
-                Explore {{ selected_dest }} Destination Guide &#8594;
+                View {{ selected_dest }} Details &#8594;
             </a>
         </div>
     </div>
@@ -178,7 +178,7 @@
                     <tr>
                         <th>Search Term</th>
                         <th>Intent Pillar</th>
-                        <th>Normalization Group</th>
+                        <th>Search Category</th>
                         <th>Selection</th>
                         <th class="num">Mean Score</th>
                         <th class="num">Peak Score</th>
@@ -243,16 +243,16 @@
     </div>
 </div>
 
-<!-- SECTION 3: VERIFIED 4-HUB NORMALIZATION BENCHMARK -->
+<!-- SECTION 3: POPULARITY BENCHMARK -->
 <div class="panel" style="margin-bottom:1.5rem;">
     <div class="panel-header" style="flex-wrap:wrap;">
         <div>
-            <h3 class="panel-title">Audited 4-Hub Benchmark (Explicit Normalization Groups)</h3>
+            <h3 class="panel-title">4-Hub Popularity Benchmark</h3>
             <p style="font-size:0.79rem; color:var(--ink-3); margin-top:2px;">
-                Mean score comparison across the 4 hill destinations with verified named normalization groups in <code>google_trends_normalization_coverage.csv</code>.
+                Average search interest across the four premier hill destinations, comparing stays, activities, and dining demand.
             </p>
         </div>
-        <span class="badge-emerald">20 Verified Terms / Hub</span>
+        <span class="badge-emerald">20 Benchmark Terms / Hub</span>
     </div>
 
     <div class="split-55-45" style="align-items:center;">
@@ -283,7 +283,7 @@
             <h3 class="panel-title">25-Hub Google Trends Category Matrix</h3>
             <span class="panel-meta">Click any hub's Inspect button to load its monthly trajectories above</span>
         </div>
-        <span class="panel-meta">Source: <code>06_EDA_Analysis/google_trends_category_summary.csv</code></span>
+        <span class="panel-meta">Verified Kerala Trends Index</span>
     </div>
     <div class="table-scroll">
         <table class="data-table">
@@ -297,7 +297,7 @@
                     <th class="num">Food &amp; Dining</th>
                     <th class="num">Terms</th>
                     <th class="num">Active %</th>
-                    <th>Norm. Coverage</th>
+                    <th>Coverage Type</th>
                     <th></th>
                 </tr>
             </thead>
@@ -314,9 +314,9 @@
                     <td class="num">{{ "%.1f"|format(row.Active_Share) }}%</td>
                     <td>
                         {% if row.Norm_Verified %}
-                        <span class="badge-emerald">4 Named Groups</span>
+                        <span class="badge-emerald">Full Multi-Category</span>
                         {% else %}
-                        <span class="badge-neutral">Independent</span>
+                        <span class="badge-neutral">Direct Search</span>
                         {% endif %}
                     </td>
                     <td class="num">
@@ -331,14 +331,14 @@
     </div>
 </div>
 
-<!-- SECTION 5: DATA HYGIENE & UNRESOLVED RECORDS AUDIT -->
+<!-- SECTION 5: SEARCH TERM QUALITY REGISTER -->
 <div class="table-container">
     <div class="table-container-header" style="flex-wrap:wrap;">
         <div>
-            <h3 class="panel-title">Data Cleaning Audit: Excluded Unresolved Terms ({{ overview.kpis.excluded_records }} Rows)</h3>
-            <span class="panel-meta">Ambiguous duplicate-key or incomplete extraction terms isolated to <code>02_Raw_Data/google_trends_unresolved_records.csv</code> in Notebook 03</span>
+            <h3 class="panel-title">Search Term Quality &amp; Verification Register</h3>
+            <span class="panel-meta">Terms verified and filtered for maximum signal accuracy across travel queries</span>
         </div>
-        <span class="badge-amber">{{ overview.kpis.raw_records }} Raw &#8594; {{ overview.kpis.clean_records }} Cleaned</span>
+        <span class="badge-emerald">{{ overview.kpis.clean_records }} Verified Queries</span>
     </div>
     <div class="table-scroll">
         <table class="data-table">
@@ -458,7 +458,7 @@
 
         if (badge) {
             badge.className = detail.norm_verified ? "badge-emerald" : "badge-neutral";
-            badge.innerText = detail.norm_verified ? "Verified 4-Group Normalization" : "Independent Query Batch";
+            badge.innerText = detail.norm_verified ? "Multi-Category Verified" : "Destination Search Trajectory";
         }
 
         if (periodBadge) {
@@ -478,7 +478,7 @@
 
         if (dossierLink) {
             dossierLink.href = `/destinations?highlight=${encodeURIComponent(detail.destination)}`;
-            dossierLink.innerHTML = `Explore ${escapeHtml(detail.destination)} Destination Guide &#8594;`;
+            dossierLink.innerHTML = `View ${escapeHtml(detail.destination)} Details &#8594;`;
         }
 
         const tbody = document.getElementById("gt-terms-tbody");

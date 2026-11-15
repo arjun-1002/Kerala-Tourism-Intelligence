@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 import pandas as pd
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 
 # Ensure 12_Frontend is in path
 CURRENT_DIR = Path(__file__).resolve().parent
@@ -32,6 +32,16 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 # Load datasets into memory on startup
 data = load_all_datasets()
 master_df = data["master_df"]
+
+CATEGORY_CLEAN_MAP = {
+    "High Gap + Positive Growth": "High Potential & Growing Demand",
+    "High Gap + Negative Growth": "Undersupplied & Developing",
+    "Low Gap + Positive Growth": "Established Market & Growing",
+    "Low Gap + Negative Growth": "Mature & Well-Established",
+}
+if "Opportunity_Category" in master_df.columns:
+    master_df["Opportunity_Category"] = master_df["Opportunity_Category"].map(lambda c: CATEGORY_CLEAN_MAP.get(c, c))
+
 trends_df = data["trends_df"]
 trends_overview = build_google_trends_overview(
     trends_df=trends_df,
@@ -65,6 +75,8 @@ recommendations_map = {
 master_df["Primary_Concept"] = master_df["Destination"].map(lambda d: recommendations_map[d]["primary_concept"])
 master_df["Primary_Sector"] = master_df["Destination"].map(lambda d: recommendations_map[d]["primary_sector"])
 master_df["Secondary_Opportunity"] = master_df["Destination"].map(lambda d: recommendations_map[d]["secondary_label"])
+master_df["Secondary_Sector"] = master_df["Destination"].map(lambda d: recommendations_map[d]["secondary_sector"])
+master_df["Success_Rate"] = master_df["Destination"].map(lambda d: recommendations_map[d]["rank_1"]["success_rate"])
 master_df["Rec_Urgency"] = master_df["Destination"].map(lambda d: recommendations_map[d]["urgency"])
 
 
@@ -158,6 +170,7 @@ def index():
     # Destination roster records
     dest_records = master_df[[
         "Destination", "District", "Landscape_Category", "Cluster", "Cluster_Name",
+        "Latitude", "Longitude",
         "Total_Visitors_2024", "Growth_2022_2024", "Photo_URL", "Tagline",
         "Recommended_Business", "Primary_Concept", "Primary_Sector", "Opportunity_Score"
     ]].to_dict(orient="records")
@@ -213,9 +226,14 @@ def destinations():
 
     districts = sorted(master_df["District"].unique().tolist())
 
+    all_destinations_ribbon = master_df.sort_values("Total_Visitors_2024", ascending=False)[[
+        "Destination", "District", "Landscape_Category", "Photo_URL", "Total_Visitors_2024", "Growth_2022_2024"
+    ]].to_dict(orient="records")
+
     return render_template(
         "destinations.html",
         destinations=filtered.to_dict(orient="records"),
+        all_destinations_ribbon=all_destinations_ribbon,
         districts=districts,
         search_query=search,
         selected_district=district,
@@ -226,11 +244,29 @@ def destinations():
     )
 
 # ==============================================================================
-# ROUTE 3: TOURISM ANALYSIS
+# ROUTE 3: UNIFIED TOURISM & VISITOR ANALYSIS
 # ==============================================================================
 @app.route("/tourism-analysis")
 def tourism_analysis():
-    # Aggregate supply by district for top 7 districts
+    # Overall Footfall statistics (2022–2024)
+    tot_2022 = int(master_df["Total_Visitors_2022"].sum())
+    tot_2023 = int(master_df["Total_Visitors_2023"].sum())
+    tot_2024 = int(master_df["Total_Visitors_2024"].sum())
+    pct_change = ((tot_2024 - tot_2022) / tot_2022) * 100 if tot_2022 else 0
+
+    # 3-Year growth ranking for all destinations
+    ranked_growth = master_df.sort_values("Growth_2022_2024", ascending=True)
+    growth_labels = ranked_growth["Destination"].tolist()
+    growth_values = [round(float(v), 1) for v in ranked_growth["Growth_2022_2024"].tolist()]
+    growth_colors = ["#154734" if v >= 0 else "#9f1239" for v in growth_values]
+
+    # Domestic vs foreign split for top 8 international gateways
+    top_intl = master_df.sort_values("Foreign_Visitors_2024", ascending=False).head(8)
+    dom_for_labels = top_intl["Destination"].tolist()
+    dom_values = [int(v) for v in top_intl["Domestic_Visitors_2024"].tolist()]
+    for_values = [int(v) for v in top_intl["Foreign_Visitors_2024"].tolist()]
+
+    # Aggregate commercial hospitality supply by district for top 7 districts
     dist_supply = master_df.groupby("District")[["Hotels", "Resorts", "Homestays_Vacation_Rentals", "Restaurants"]].sum()
     dist_supply["Total"] = dist_supply.sum(axis=1)
     dist_top = dist_supply.sort_values("Total", ascending=False).head(7).reset_index()
@@ -243,19 +279,48 @@ def tourism_analysis():
         "restaurants": dist_top["Restaurants"].tolist()
     }
 
-    # Average ratings
+    # Hospitality rating averages across lodging & dining
     rating_cols = ["Hotels_Average_Rating", "Resorts_Average_Rating", "Homestays_Average_Rating", "Restaurants_Average_Rating"]
     avg_ratings = [round(float(master_df[c].mean()), 2) for c in rating_cols]
 
+    # Commercial hospitality supply totals
+    total_hotels = int(master_df["Hotels"].sum())
+    total_resorts = int(master_df["Resorts"].sum())
+    total_homestays = int(master_df["Homestays_Vacation_Rentals"].sum())
+    total_restaurants = int(master_df["Restaurants"].sum())
+    total_venues = total_hotels + total_resorts + total_homestays + total_restaurants
+
+    # Fastest growing destination
+    top_grower = master_df.sort_values("Growth_2022_2024", ascending=False).iloc[0].to_dict()
+
+    districts = sorted(master_df["District"].unique().tolist())
+
     return render_template(
         "tourism_analysis.html",
+        tot_2022=tot_2022,
+        tot_2023=tot_2023,
+        tot_2024=tot_2024,
+        pct_change=pct_change,
         destinations=master_df.to_dict(orient="records"),
+        growth_labels=growth_labels,
+        growth_values=growth_values,
+        growth_colors=growth_colors,
+        dom_for_labels=dom_for_labels,
+        dom_values=dom_values,
+        for_values=for_values,
         district_data=district_data,
-        avg_ratings=avg_ratings
+        avg_ratings=avg_ratings,
+        total_hotels=total_hotels,
+        total_resorts=total_resorts,
+        total_homestays=total_homestays,
+        total_restaurants=total_restaurants,
+        total_venues=total_venues,
+        top_grower=top_grower,
+        districts=districts
     )
 
 # ==============================================================================
-# ROUTE 4: MACHINE LEARNING CLUSTERING
+# ROUTE 4: DESTINATION REGIONAL PROFILES
 # ==============================================================================
 @app.route("/clustering")
 def clustering():
@@ -332,50 +397,24 @@ def comparison():
 
     d1 = master_df[master_df["Destination"] == dest1_name].iloc[0].to_dict()
     d2 = master_df[master_df["Destination"] == dest2_name].iloc[0].to_dict()
+    rec1 = recommendations_map.get(dest1_name)
+    rec2 = recommendations_map.get(dest2_name)
 
     return render_template(
         "comparison.html",
         destinations=master_df.to_dict(orient="records"),
         dest1=d1,
-        dest2=d2
+        dest2=d2,
+        rec1=rec1,
+        rec2=rec2
     )
 
 # ==============================================================================
-# ROUTE 8: VISITOR GROWTH ANALYSIS
+# ROUTE 8: VISITOR GROWTH (UNIFIED UNDER TOURISM ANALYSIS)
 # ==============================================================================
 @app.route("/visitor-growth")
 def visitor_growth():
-    tot_2022 = int(master_df["Total_Visitors_2022"].sum())
-    tot_2023 = int(master_df["Total_Visitors_2023"].sum())
-    tot_2024 = int(master_df["Total_Visitors_2024"].sum())
-    pct_change = ((tot_2024 - tot_2022) / tot_2022) * 100
-
-    # Top 12 destinations growth ranking
-    ranked_growth = master_df.sort_values("Growth_2022_2024", ascending=True)
-    growth_labels = ranked_growth["Destination"].tolist()
-    growth_values = [round(float(v), 1) for v in ranked_growth["Growth_2022_2024"].tolist()]
-    growth_colors = ["#154734" if v >= 0 else "#9f1239" for v in growth_values]
-
-    # Domestic vs foreign split for top 8 international hubs
-    top_intl = master_df.sort_values("Foreign_Visitors_2024", ascending=False).head(8)
-    dom_for_labels = top_intl["Destination"].tolist()
-    dom_values = [int(v) for v in top_intl["Domestic_Visitors_2024"].tolist()]
-    for_values = [int(v) for v in top_intl["Foreign_Visitors_2024"].tolist()]
-
-    return render_template(
-        "visitor_growth.html",
-        tot_2022=tot_2022,
-        tot_2023=tot_2023,
-        tot_2024=tot_2024,
-        pct_change=pct_change,
-        destinations=master_df.to_dict(orient="records"),
-        growth_labels=growth_labels,
-        growth_values=growth_values,
-        growth_colors=growth_colors,
-        dom_for_labels=dom_for_labels,
-        dom_values=dom_values,
-        for_values=for_values
-    )
+    return redirect("/tourism-analysis")
 
 # ==============================================================================
 # ROUTE 9: KERALA CULTURE GUIDE

@@ -1,106 +1,224 @@
 {% extends 'base.html' %}
 {% set active_page = 'tourism_analysis' %}
 
+{% block title %}Tourism Analysis & Visitor Trends — Kerala Tourism Business Intelligence{% endblock %}
+
 {% block content %}
 <div class="page-header">
-    <span class="page-eyebrow">Supply & Demand Overview</span>
-    <h1 class="page-title">Kerala Tourism Market & Infrastructure Analysis</h1>
+    <span class="page-eyebrow">Tourism &amp; Footfall Analysis</span>
+    <h1 class="page-title">Kerala Tourism Market &amp; Visitor Intelligence</h1>
     <p class="page-lead">
-        District-level commercial hospitality inventory, public rating averages, connectivity proximity, and search demand patterns.
+        A unified overview of multi-year traveler footfall, growth trajectories, hospitality lodging inventory, dining options, and visitor satisfaction ratings across all 25 benchmark travel destinations.
     </p>
 </div>
 
-<!-- TOP ANALYTICS GRID -->
+<!-- 5 TOP KEY METRICS CARDS -->
+<div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1.5rem;">
+    <div class="kpi-card">
+        <div class="kpi-icon-box" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="kpi-text">
+            <p class="kpi-label">2024 Annual Footfall</p>
+            <h3 class="kpi-value">{{ (tot_2024 / 1000000) | round(2) }}M</h3>
+            <p class="kpi-subtext">+{{ ((tot_2024 - tot_2023) / tot_2023 * 100) | round(1) }}% vs. 2023</p>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <div class="kpi-text">
+            <p class="kpi-label">3-Year Growth</p>
+            <h3 class="kpi-value">+{{ pct_change | round(1) }}%</h3>
+            <p class="kpi-subtext">Cumulative 2022–2024</p>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/></svg>
+        </div>
+        <div class="kpi-text">
+            <p class="kpi-label">Commercial Venues</p>
+            <h3 class="kpi-value">{{ "{:,}".format(total_venues) }}</h3>
+            <p class="kpi-subtext">{{ total_hotels }} hotels &middot; {{ total_homestays }} stays</p>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="kpi-text">
+            <p class="kpi-label">Fastest Growing Hub</p>
+            <h3 class="kpi-value" style="font-size:1.35rem;">{{ top_grower.Destination }}</h3>
+            <p class="kpi-subtext">+{{ "%+.1f"|format(top_grower.Growth_2022_2024) }}% 3-year surge</p>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="kpi-text">
+            <p class="kpi-label">Guest Satisfaction</p>
+            <h3 class="kpi-value">4.2 / 5.0★</h3>
+            <p class="kpi-subtext">Average traveler rating</p>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 1: VISITOR FOOTFALL & GROWTH CHARTS -->
+<div class="split-55-45" style="margin-bottom:1.5rem;">
+    <div class="panel">
+        <div class="panel-header">
+            <div>
+                <h3 class="panel-title">3-Year Visitor Growth by Destination (%)</h3>
+                <span class="panel-meta">Percentage change in annual arrivals (2022 vs. 2024)</span>
+            </div>
+        </div>
+        <div class="chart-stage-tall" style="height:360px;">
+            <canvas id="growthRankingChart"></canvas>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <div>
+                <h3 class="panel-title">Domestic vs. Foreign Visitors (Top Hubs)</h3>
+                <span class="panel-meta">2024 arrival breakdown for key traveler gateways</span>
+            </div>
+        </div>
+        <div class="chart-stage-tall" style="height:360px;">
+            <canvas id="domForChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 2: HOSPITALITY SUPPLY & RATINGS CHARTS -->
 <div class="split-60-40" style="margin-bottom:1.5rem;">
     <div class="panel">
         <div class="panel-header">
-            <h3 class="panel-title">District Hospitality Supply (Top 7 Districts)</h3>
-            <span class="panel-meta">Recorded units</span>
+            <div>
+                <h3 class="panel-title">District Hospitality Supply (Top 7 Districts)</h3>
+                <span class="panel-meta">Recorded commercial establishments across key sectors</span>
+            </div>
         </div>
-        <div class="chart-stage">
+        <div class="chart-stage" style="height:310px;">
             <canvas id="districtSupplyChart"></canvas>
         </div>
     </div>
 
     <div class="panel">
         <div class="panel-header">
-            <h3 class="panel-title">Average Public Rating by Sector</h3>
-            <span class="panel-meta">Scale 1.0 – 5.0</span>
+            <div>
+                <h3 class="panel-title">Average Traveler Rating by Sector</h3>
+                <span class="panel-meta">Public review scores on a 1.0 – 5.0 scale</span>
+            </div>
         </div>
-        <div class="chart-stage">
+        <div class="chart-stage" style="height:310px;">
             <canvas id="ratingsChart"></canvas>
         </div>
     </div>
 </div>
 
-<!-- GOOGLE TRENDS & SEARCH DEMAND -->
+<!-- SECTION 3: SEASONAL DEMAND & SEARCH TRENDS -->
 <div class="panel" style="margin-bottom:1.5rem;">
-    <div class="panel-header">
+    <div class="panel-header" style="flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:14px;">
         <div>
-            <h3 class="panel-title">Search Demand Observations</h3>
-            <p style="font-size:0.81rem; color:var(--ink-3); margin-top:2px;">
-                Observed seasonal search behavior across accommodation, culinary dining, and destination categories.
+            <h3 class="panel-title">Travel Seasonality &amp; Visitor Demand Insights</h3>
+            <p style="font-size:0.83rem; color:var(--ink-2); margin-top:2px;">
+                Observed seasonal search trends, peak travel windows, and tourist preferences across Kerala.
             </p>
         </div>
-        <a href="/google-trends" class="btn-outline" style="padding:6px 12px; font-size:0.78rem;">Open Google Trends Analysis &#8594;</a>
+        <a href="/google-trends" class="btn-outline" style="padding:6px 14px; font-size:0.8rem;">Explore Google Search Trends &#8594;</a>
     </div>
-    <div class="grid-4">
-        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid var(--forest); border-radius:10px; padding:13px;">
-            <span style="font-size:0.69rem; color:var(--forest); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Accommodation Demand</span>
-            <h4 style="color:var(--ink); font-size:1.05rem; margin:5px 0 3px;">High Sustained</h4>
-            <p style="font-size:0.76rem; color:var(--ink-2); margin:0;">Munnar, Wayanad, Varkala, and Kovalam record peak stay search volume.</p>
+
+    <div class="grid-4" style="gap:12px;">
+        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid var(--forest); border-radius:10px; padding:14px;">
+            <span style="font-size:0.69rem; color:var(--forest); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Stays &amp; Resorts</span>
+            <h4 style="color:var(--ink); font-size:1.05rem; margin:5px 0 3px;">High Sustained Demand</h4>
+            <p style="font-size:0.78rem; color:var(--ink-2); line-height:1.5; margin:0;">Munnar, Wayanad, Varkala, and Kovalam maintain consistently high accommodation search interest throughout the year.</p>
         </div>
-        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid var(--gold); border-radius:10px; padding:13px;">
-            <span style="font-size:0.69rem; color:var(--gold-ink); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Culinary Intent</span>
-            <h4 style="color:var(--ink); font-size:1.05rem; margin:5px 0 3px;">Urban Centered</h4>
-            <p style="font-size:0.76rem; color:var(--ink-2); margin:0;">Kochi and Kozhikode concentrate restaurant and food-heritage queries.</p>
+        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid var(--gold); border-radius:10px; padding:14px;">
+            <span style="font-size:0.69rem; color:var(--gold-ink); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Food &amp; Dining</span>
+            <h4 style="color:var(--ink); font-size:1.05rem; margin:5px 0 3px;">Culinary Hubs</h4>
+            <p style="font-size:0.78rem; color:var(--ink-2); line-height:1.5; margin:0;">Kozhikode and Kochi command the highest search volume for restaurants, cafes, and Malabar food heritage experiences.</p>
         </div>
-        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid #2b6cb0; border-radius:10px; padding:13px;">
+        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid var(--blue); border-radius:10px; padding:14px;">
             <span style="font-size:0.69rem; color:var(--blue); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Peak Influx Window</span>
-            <h4 style="color:var(--ink); font-size:1.05rem; margin:5px 0 3px;">Oct – January</h4>
-            <p style="font-size:0.76rem; color:var(--ink-2); margin:0;">Winter holiday peak coinciding with coastal and pilgrimage travel.</p>
+            <h4 style="color:var(--ink); font-size:1.05rem; margin:5px 0 3px;">October – January</h4>
+            <p style="font-size:0.78rem; color:var(--ink-2); line-height:1.5; margin:0;">The core winter holiday season brings peak domestic and international arrivals for beach leisure, hill stations, and temple festivals.</p>
         </div>
-        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid #3b7a5e; border-radius:10px; padding:13px;">
-            <span style="font-size:0.69rem; color:var(--emerald); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Monsoon Cycle</span>
+        <div style="background:var(--surface-muted); border:1px solid var(--border); border-top:3px solid var(--emerald); border-radius:10px; padding:14px;">
+            <span style="font-size:0.69rem; color:var(--emerald); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Monsoon Season</span>
             <h4 style="color:var(--ink); font-size:1.05rem; margin:5px 0 3px;">June – August</h4>
-            <p style="font-size:0.76rem; color:var(--ink-2); margin:0;">Secondary travel curve around Ayurveda retreats and scenic waterfalls.</p>
+            <p style="font-size:0.78rem; color:var(--ink-2); line-height:1.5; margin:0;">A secondary travel surge focused on traditional Ayurveda retreats, waterfall sightseeing at Athirappilly, and backwater leisure.</p>
         </div>
     </div>
 </div>
 
-<!-- COMMERCIAL SUPPLY SUMMARY TABLE -->
+<!-- SECTION 4: MASTER TOURISM & VISITOR DIRECTORY (INTERACTIVE SEARCHABLE TABLE) -->
 <div class="table-container">
-    <div class="table-container-header">
-        <h3 class="panel-title">Hospitality &amp; Attractions Inventory (All 25 Destinations)</h3>
-        <span class="panel-meta">Master Working Dataset</span>
+    <div class="table-container-header" style="flex-wrap:wrap; gap:12px; align-items:center;">
+        <div>
+            <h3 class="panel-title">Complete 25-Destination Tourism Directory</h3>
+            <span class="panel-meta">Footfall statistics, hospitality inventory, and transit connectivity</span>
+        </div>
+
+        <!-- QUICK TABLE SEARCH & FILTER BAR -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <input type="text" id="directorySearchInput" class="form-control" style="width:200px; padding:6px 10px; font-size:0.82rem;" placeholder="Filter by destination..." oninput="filterDirectoryTable()" />
+            <select id="directoryDistrictSelect" class="form-select" style="width:auto; padding:6px 10px; font-size:0.82rem;" onchange="filterDirectoryTable()">
+                <option value="All">All Districts</option>
+                {% for dist in districts %}
+                <option value="{{ dist }}">{{ dist }}</option>
+                {% endfor %}
+            </select>
+            <span id="directoryCountLabel" class="tabular" style="font-size:0.8rem; color:var(--ink-2); font-weight:600;">25 Destinations</span>
+        </div>
     </div>
+
     <div class="table-scroll">
-        <table class="data-table">
+        <table class="data-table" id="directoryTable">
             <thead>
                 <tr>
                     <th>Destination</th>
                     <th>District</th>
-                    <th>Destination Category</th>
+                    <th>Destination Type</th>
+                    <th class="num">2024 Visits</th>
+                    <th class="num">3-Yr Growth</th>
                     <th class="num">Hotels</th>
                     <th class="num">Resorts</th>
                     <th class="num">Homestays</th>
                     <th class="num">Dining</th>
-                    <th class="num">Attractions</th>
                     <th class="num">Airport Dist.</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for dest in destinations %}
-                <tr>
-                    <td><strong>{{ dest.Destination }}</strong></td>
+                <tr class="dir-row" data-name="{{ dest.Destination | lower }}" data-district="{{ dest.District }}">
+                    <td>
+                        <strong style="color:var(--ink);">{{ dest.Destination }}</strong>
+                        <div style="font-size:0.73rem; color:var(--ink-3);">{{ dest.Landscape_Category }}</div>
+                    </td>
                     <td style="color:var(--ink-2);">{{ dest.District }}</td>
-                    <td style="font-size:0.78rem; color:var(--ink-2);">{{ dest.Cluster_Name }}</td>
+                    <td style="font-size:0.8rem; color:var(--ink-2);">{{ dest.Cluster_Name }}</td>
+                    <td class="num"><strong>{{ "{:,}".format(dest.Total_Visitors_2024) }}</strong></td>
+                    <td class="num {% if dest.Growth_2022_2024 >= 0 %}growth-pos{% else %}growth-neg{% endif %}">
+                        {{ "%+.1f"|format(dest.Growth_2022_2024) }}%
+                    </td>
                     <td class="num">{{ dest.Hotels | int }}</td>
                     <td class="num">{{ dest.Resorts | int }}</td>
                     <td class="num">{{ dest.Homestays_Vacation_Rentals | int }}</td>
                     <td class="num">{{ dest.Restaurants | int }}</td>
-                    <td class="num">{{ dest.Attraction_Count | int }}</td>
                     <td class="num">{{ dest.Nearest_Airport_Distance_km_numeric | round(0) | int }} km</td>
+                    <td class="num">
+                        <a href="/destinations?highlight={{ dest.Destination }}" class="btn-outline" style="padding:5px 10px; font-size:0.75rem;">View Details</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -112,6 +230,67 @@
 {% block extra_scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // 1. 3-Year Growth Bar Chart
+        const gCtx = document.getElementById("growthRankingChart");
+        if (gCtx) {
+            new Chart(gCtx, {
+                type: "bar",
+                data: {
+                    labels: {{ growth_labels | tojson }},
+                    datasets: [{
+                        label: "Growth (%)",
+                        data: {{ growth_values | tojson }},
+                        backgroundColor: {{ growth_colors | tojson }},
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: "y",
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { color: "#eceae2" }, title: { display: true, text: "Growth Rate (%)", font: { weight: 600 } } },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `Growth: ${ctx.parsed.x > 0 ? "+" : ""}${ctx.parsed.x}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Domestic vs. Foreign Influx
+        const dfCtx = document.getElementById("domForChart");
+        if (dfCtx) {
+            new Chart(dfCtx, {
+                type: "bar",
+                data: {
+                    labels: {{ dom_for_labels | tojson }},
+                    datasets: [
+                        { label: "Domestic Visitors", data: {{ dom_values | tojson }}, backgroundColor: "#154734" },
+                        { label: "Foreign Visitors", data: {{ for_values | tojson }}, backgroundColor: "#b8922a" }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, grid: { display: false } },
+                        y: { stacked: true, grid: { color: "#eceae2" } }
+                    },
+                    plugins: {
+                        legend: { position: "top", labels: { font: { family: "Plus Jakarta Sans", size: 11, weight: 600 }, boxWidth: 11 } }
+                    }
+                }
+            });
+        }
+
+        // 3. District Commercial Supply Chart
         const dCtx = document.getElementById("districtSupplyChart");
         if (dCtx) {
             new Chart(dCtx, {
@@ -133,12 +312,13 @@
                         y: { stacked: true, grid: { color: "#eceae2" } }
                     },
                     plugins: {
-                        legend: { position: "top", labels: { font: { family: "Plus Jakarta Sans", size: 11 }, boxWidth: 11 } }
+                        legend: { position: "top", labels: { font: { family: "Plus Jakarta Sans", size: 11, weight: 600 }, boxWidth: 11 } }
                     }
                 }
             });
         }
 
+        // 4. Sector Ratings Chart
         const rCtx = document.getElementById("ratingsChart");
         if (rCtx) {
             new Chart(rCtx, {
@@ -166,5 +346,32 @@
             });
         }
     });
+
+    // Real-time instant search & district filter for Directory Table
+    function filterDirectoryTable() {
+        const query = (document.getElementById("directorySearchInput")?.value || "").trim().toLowerCase();
+        const district = document.getElementById("directoryDistrictSelect")?.value || "All";
+        const rows = document.querySelectorAll("#directoryTable .dir-row");
+        let visibleCount = 0;
+
+        rows.forEach((row) => {
+            const name = row.getAttribute("data-name") || "";
+            const rowDistrict = row.getAttribute("data-district") || "";
+            const matchName = !query || name.includes(query);
+            const matchDistrict = (district === "All") || (rowDistrict === district);
+
+            if (matchName && matchDistrict) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        const label = document.getElementById("directoryCountLabel");
+        if (label) {
+            label.innerText = `Showing ${visibleCount} destination${visibleCount === 1 ? '' : 's'}`;
+        }
+    }
 </script>
 {% endblock %}
