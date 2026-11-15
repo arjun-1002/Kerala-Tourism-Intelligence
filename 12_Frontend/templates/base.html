@@ -152,6 +152,90 @@
         </main>
     </div>
 
+    <!-- ================================================================= -->
+    <!-- FLOATING AI ASSISTANT CONCIERGE -->
+    <!-- ================================================================= -->
+    <div class="ai-assistant-wrapper" id="aiAssistantWrapper">
+        <!-- Floating Trigger Button -->
+        <button type="button" class="ai-assistant-trigger" id="aiAssistantTrigger" onclick="toggleAssistant()" aria-label="Open Kerala AI Assistant">
+            <div class="ai-trigger-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <path d="M12 7v2"></path>
+                    <path d="M12 13h.01"></path>
+                </svg>
+            </div>
+            <span class="ai-trigger-label">Ask Kerala AI Guide</span>
+            <span class="ai-trigger-pulse"></span>
+        </button>
+
+        <!-- Floating Chat Modal / Drawer -->
+        <div class="ai-assistant-panel" id="aiAssistantPanel" aria-hidden="true">
+            <!-- Header -->
+            <div class="ai-panel-header">
+                <div class="ai-header-brand">
+                    <div class="ai-avatar" aria-hidden="true">🌴</div>
+                    <div class="ai-header-info">
+                        <h3>Kerala AI Guide</h3>
+                        <p><span class="ai-status-dot"></span> Travel &amp; Investment Concierge</p>
+                    </div>
+                </div>
+                <div class="ai-header-actions">
+                    <button type="button" class="ai-header-btn" onclick="resetAssistantChat()" title="Clear conversation" aria-label="Clear chat">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
+                    <button type="button" class="ai-header-btn" onclick="toggleAssistant(false)" title="Close Assistant" aria-label="Close Assistant">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Suggestions Bar -->
+            <div class="ai-suggestions-bar" id="aiSuggestionsBar">
+                <span class="ai-suggestions-kicker">Quick Questions:</span>
+                <div class="ai-chips-scroll" id="aiChipsScroll"></div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="ai-messages-area" id="aiMessagesArea">
+                <div class="ai-msg ai-msg-bot">
+                    <div class="ai-msg-avatar">🌴</div>
+                    <div class="ai-msg-bubble">
+                        <p><strong>Namaskaram!</strong> Welcome to Kerala Tourism Intelligence.</p>
+                        <p>I can help you explore <strong>25 benchmark destinations</strong>, discover <strong>hospitality business opportunities</strong>, estimate <strong>venture ROI</strong>, or plan trips around Kerala's cultural festivals.</p>
+                        <p style="margin-top:8px; font-size:0.8rem; color:var(--ink-3);">Try asking: <em>"Where should I open an eco-resort?"</em> or <em>"Compare Munnar and Wayanad"</em></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="ai-typing-indicator" id="aiTypingIndicator" style="display:none;">
+                <div class="ai-msg-avatar">🌴</div>
+                <div class="ai-typing-bubble">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                </div>
+            </div>
+
+            <!-- Input Form -->
+            <form class="ai-input-form" id="aiInputForm" onsubmit="handleAssistantSubmit(event)">
+                <input
+                    type="text"
+                    id="aiUserInput"
+                    class="ai-input-field"
+                    placeholder="Ask about places, investments, or travel..."
+                    autocomplete="off"
+                    maxlength="300"
+                />
+                <button type="submit" class="ai-send-btn" id="aiSendBtn" aria-label="Send message">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
