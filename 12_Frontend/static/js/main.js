@@ -18,6 +18,7 @@ let currentTickerIndex = 0;
 document.addEventListener("DOMContentLoaded", function () {
   initHeritageTicker();
   initSearchAutocomplete();
+  initAssistant();
 });
 
 function toggleMobileNav(forceState) {
@@ -271,4 +272,282 @@ function updateSpotlightCard(data) {
   if (check3) check3.innerHTML = `<strong>Suggested Venture:</strong> ${data.Primary_Concept || data.Recommended_Business}`;
 
   if (exploreBtn) exploreBtn.href = `/destinations?highlight=${encodeURIComponent(data.Destination)}`;
+}
+
+/* ==========================================================================
+   AI ASSISTANT CLIENT ENGINE
+   ========================================================================== */
+
+let aiChatHistory = [];
+let isAssistantSending = false;
+
+const DEFAULT_SUGGESTIONS = [
+  { label: "Top 5 Growth Destinations", query: "Which destinations had the fastest visitor growth between 2022 and 2024?" },
+  { label: "Homestay Investment & ROI", query: "What is the capital requirement and expected ROI for a boutique homestay in Kerala?" },
+  { label: "Wayanad Venture Advisory", query: "What business venture is recommended for Wayanad and why?" },
+  { label: "Munnar vs Wayanad", query: "Compare Munnar and Wayanad for tourism footfall and hospitality opportunities." },
+  { label: "Quiet Hill Stations", query: "Where should I go for a peaceful hill station trip away from crowds?" },
+  { label: "Theyyam & Cultural Season", query: "When and where can I experience Theyyam rituals and snake boat races?" }
+];
+
+function initAssistant() {
+  renderAssistantSuggestions(DEFAULT_SUGGESTIONS);
+
+  // Fetch dynamic suggestions from backend
+  fetch("/api/assistant/suggestions")
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.suggestions && data.suggestions.length) {
+        renderAssistantSuggestions(data.suggestions);
+      }
+    })
+    .catch(() => {
+      // Gracefully uses defaults
+    });
+}
+
+function renderAssistantSuggestions(suggestions) {
+  const container = document.getElementById("aiChipsScroll");
+  if (!container) return;
+
+  container.innerHTML = "";
+  suggestions.forEach(item => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "ai-chip";
+    chip.innerText = item.label;
+    chip.onclick = () => askAssistant(item.query);
+    container.appendChild(chip);
+  });
+}
+
+function toggleAssistant(forceState) {
+  const panel = document.getElementById("aiAssistantPanel");
+  if (!panel) return;
+
+  const isOpen = typeof forceState === "boolean" ? forceState : !panel.classList.contains("open");
+  panel.classList.toggle("open", isOpen);
+  panel.setAttribute("aria-hidden", !isOpen);
+
+  if (isOpen) {
+    const input = document.getElementById("aiUserInput");
+    if (input) setTimeout(() => input.focus(), 150);
+  }
+}
+
+function handleAssistantSubmit(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById("aiUserInput");
+  if (!input) return;
+  const msg = input.value.trim();
+  if (!msg) return;
+  askAssistant(msg);
+  input.value = "";
+}
+
+function askAssistant(query) {
+  if (!query || isAssistantSending) return;
+
+  // Make sure panel is open
+  toggleAssistant(true);
+
+  // Append user message
+  appendUserMessage(query);
+
+  // Set loading state
+  isAssistantSending = true;
+  const sendBtn = document.getElementById("aiSendBtn");
+  const input = document.getElementById("aiUserInput");
+  if (sendBtn) sendBtn.disabled = true;
+  if (input) input.disabled = true;
+
+  const typingIndicator = document.getElementById("aiTypingIndicator");
+  if (typingIndicator) typingIndicator.style.display = "flex";
+  scrollAssistantToBottom();
+
+  // Send request
+  fetch("/api/assistant/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: query,
+      history: aiChatHistory.slice(-6)
+    })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (typingIndicator) typingIndicator.style.display = "none";
+      const reply = data && data.reply ? data.reply : "Sorry, I could not process your query right now.";
+      appendBotMessage(reply);
+
+      // Save history
+      aiChatHistory.push({ role: "user", content: query });
+      aiChatHistory.push({ role: "assistant", content: reply });
+
+      if (data && data.suggestions && data.suggestions.length) {
+        renderAssistantSuggestions(data.suggestions);
+      }
+    })
+    .catch(err => {
+      if (typingIndicator) typingIndicator.style.display = "none";
+      appendBotMessage("⚠️ Network error communicating with the assistant service. Please check your connection.");
+    })
+    .finally(() => {
+      isAssistantSending = false;
+      if (sendBtn) sendBtn.disabled = false;
+      if (input) {
+        input.disabled = false;
+        input.focus();
+      }
+      scrollAssistantToBottom();
+    });
+}
+
+function appendUserMessage(text) {
+  const area = document.getElementById("aiMessagesArea");
+  if (!area) return;
+
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "ai-msg ai-msg-user";
+
+  const bubble = document.createElement("div");
+  bubble.className = "ai-msg-bubble";
+  bubble.innerText = text;
+
+  msgDiv.appendChild(bubble);
+  area.appendChild(msgDiv);
+  scrollAssistantToBottom();
+}
+
+function appendBotMessage(markdown) {
+  const area = document.getElementById("aiMessagesArea");
+  if (!area) return;
+
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "ai-msg ai-msg-bot";
+
+  const avatar = document.createElement("div");
+  avatar.className = "ai-msg-avatar";
+  avatar.innerText = "🌴";
+
+  const bubble = document.createElement("div");
+  bubble.className = "ai-msg-bubble";
+  bubble.innerHTML = parseMarkdownToHtml(markdown);
+
+  msgDiv.appendChild(avatar);
+  msgDiv.appendChild(bubble);
+  area.appendChild(msgDiv);
+  scrollAssistantToBottom();
+}
+
+function scrollAssistantToBottom() {
+  const area = document.getElementById("aiMessagesArea");
+  if (area) {
+    area.scrollTop = area.scrollHeight;
+  }
+}
+
+function resetAssistantChat() {
+  aiChatHistory = [];
+  const area = document.getElementById("aiMessagesArea");
+  if (!area) return;
+
+  area.innerHTML = `
+    <div class="ai-msg ai-msg-bot">
+      <div class="ai-msg-avatar">🌴</div>
+      <div class="ai-msg-bubble">
+        <p><strong>Namaskaram!</strong> Welcome back to Kerala Tourism Intelligence.</p>
+        <p>I can help you explore <strong>25 benchmark destinations</strong>, discover <strong>hospitality business opportunities</strong>, estimate <strong>venture ROI</strong>, or plan trips around Kerala's cultural festivals.</p>
+        <p style="margin-top:8px; font-size:0.8rem; color:var(--ink-3);">Try asking: <em>"Where should I open an eco-resort?"</em> or <em>"Compare Munnar and Wayanad"</em></p>
+      </div>
+    </div>
+  `;
+  renderAssistantSuggestions(DEFAULT_SUGGESTIONS);
+  const input = document.getElementById("aiUserInput");
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+}
+
+function parseMarkdownToHtml(md) {
+  if (!md) return "";
+
+  // 1. Safe escape raw HTML
+  let out = md
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // Headers: ### Title
+  out = out.replace(/^### (.*?)$/gm, "<h3>$1</h3>");
+  out = out.replace(/^## (.*?)$/gm, "<h3>$1</h3>");
+  out = out.replace(/^# (.*?)$/gm, "<h3>$1</h3>");
+
+  // Blockquotes: > quote
+  out = out.replace(/^&gt;\s*(.*?)$/gm, "<blockquote>$1</blockquote>");
+
+  // Tables
+  const tableRegex = /((?:\|.+?\|\r?\n)+)/g;
+  out = out.replace(tableRegex, function (match) {
+    const lines = match.trim().split("\n");
+    if (lines.length < 2) return match;
+    let html = "<table>";
+    let isHeader = true;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (/^\|[-:\s|]+\|$/.test(line)) {
+        isHeader = false;
+        continue;
+      }
+      const cols = line.split("|").slice(1, -1).map(c => c.trim());
+      html += "<tr>";
+      cols.forEach(col => {
+        if (isHeader) {
+          html += `<th>${col}</th>`;
+        } else {
+          html += `<td>${col}</td>`;
+        }
+      });
+      html += "</tr>";
+    }
+    html += "</table>";
+    return html;
+  });
+
+  // Unordered list items: - item
+  out = out.replace(/(?:^|\n)-\s+(.*?)(?=\n(?!-\s+)|\n*$)/gs, function (block) {
+    const items = block.trim().split(/\n-\s+/).filter(Boolean);
+    return "\n<ul>" + items.map(it => `<li>${it}</li>`).join("") + "</ul>\n";
+  });
+
+  // Ordered list items: 1. item
+  out = out.replace(/(?:^|\n)\d+\.\s+(.*?)(?=\n(?!\d+\.\s+)|\n*$)/gs, function (block) {
+    const items = block.trim().split(/\n\d+\.\s+/).filter(Boolean);
+    return "\n<ol>" + items.map(it => `<li>${it}</li>`).join("") + "</ol>\n";
+  });
+
+  // Bold & Italic
+  out = out.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+  // Markdown links: [text](url)
+  out = out.replace(/\[(.*?)\]\((.*?)\)/g, function (m, text, url) {
+    const cleanUrl = url.replace(/&amp;/g, "&");
+    return `<a href="${cleanUrl}" class="chat-nav-link">${text} &#8594;</a>`;
+  });
+
+  // Paragraphs & Double line breaks
+  out = out.replace(/\n\n+/g, "</p><p>");
+  out = "<p>" + out + "</p>";
+
+  // Clean empty paragraphs and bad nestings
+  out = out.replace(/<p>\s*<\/p>/g, "");
+  out = out.replace(/<p>(<h3[^>]*>.*?<\/h3>)<\/p>/g, "$1");
+  out = out.replace(/<p>(<blockquote[^>]*>.*?<\/blockquote>)<\/p>/g, "$1");
+  out = out.replace(/<p>(<table[^>]*>.*?<\/table>)<\/p>/g, "$1");
+  out = out.replace(/<p>(<ul[^>]*>.*?<\/ul>)<\/p>/g, "$1");
+  out = out.replace(/<p>(<ol[^>]*>.*?<\/ol>)<\/p>/g, "$1");
+
+  return out;
 }

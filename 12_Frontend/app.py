@@ -25,6 +25,7 @@ from recommendations import (
     get_destination_recommendation,
     get_opportunity_tag,
 )
+from assistant import KeralaTourismAssistant
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -78,6 +79,9 @@ master_df["Secondary_Opportunity"] = master_df["Destination"].map(lambda d: reco
 master_df["Secondary_Sector"] = master_df["Destination"].map(lambda d: recommendations_map[d]["secondary_sector"])
 master_df["Success_Rate"] = master_df["Destination"].map(lambda d: recommendations_map[d]["rank_1"]["success_rate"])
 master_df["Rec_Urgency"] = master_df["Destination"].map(lambda d: recommendations_map[d]["urgency"])
+
+# Initialize conversational AI assistant
+ai_assistant = KeralaTourismAssistant(master_df, recommendations_map, trends_overview)
 
 
 def get_clean_trend_series(dest_name: str, period: str = "3y") -> dict:
@@ -505,6 +509,30 @@ def api_calculate():
     res["cash_flows"] = cf_df.to_dict(orient="records")
 
     return jsonify(res)
+
+# ==============================================================================
+# ROUTE 12: CONVERSATIONAL AI ASSISTANT API
+# ==============================================================================
+@app.route("/api/assistant/suggestions", methods=["GET"])
+def api_assistant_suggestions():
+    """Returns curated starter prompts for the AI travel & business concierge."""
+    return jsonify({"suggestions": ai_assistant.get_suggestions()})
+
+@app.route("/api/assistant/chat", methods=["POST"])
+def api_assistant_chat():
+    """Processes conversational questions and returns grounded intelligence responses."""
+    payload = request.get_json() or {}
+    message = payload.get("message", "").strip()
+    history = payload.get("history", [])
+
+    if not message:
+        return jsonify({
+            "reply": "Please ask a question about destinations, business ventures, or travel in Kerala.",
+            "suggestions": ai_assistant.get_suggestions()[:4]
+        })
+
+    response = ai_assistant.answer_query(message, conversation_history=history)
+    return jsonify(response)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
