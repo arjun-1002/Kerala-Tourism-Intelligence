@@ -29,39 +29,53 @@ if (-not $pythonCmd) {
 
 Write-Host "[*] Found Python: $pythonCmd" -ForegroundColor Green
 
-# 2. Check / Setup Virtual Environment
-$venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
-$needsInstall = $false
-
-if (Test-Path ".venv") {
-    try {
-        & $venvPython -c "import sys" 2>$null
-        if ($LASTEXITCODE -ne 0) { throw "Corrupt venv" }
-    } catch {
-        Write-Host "[!] Existing .venv is invalid. Rebuilding fresh environment..." -ForegroundColor Yellow
-        Remove-Item -Recurse -Force ".venv"
-    }
-}
-
-if (-not (Test-Path ".venv")) {
-    Write-Host "[*] Creating fresh virtual environment (.venv)..." -ForegroundColor Cyan
-    & $pythonCmd -m venv .venv
-    $needsInstall = $true
-}
-
-# 3. Check dependencies
+# 2. Check if host python already has dependencies
+$hasDependencies = $false
 try {
-    & $venvPython -c "import flask, pandas, plotly, sklearn" 2>$null
-    if ($LASTEXITCODE -ne 0) { $needsInstall = $true }
-} catch {
-    $needsInstall = $true
-}
+    & $pythonCmd -c "import flask, pandas, plotly, sklearn" 2>$null
+    if ($LASTEXITCODE -eq 0) { $hasDependencies = $true }
+} catch {}
 
-if ($needsInstall) {
-    Write-Host "[*] Installing dependencies from requirements.txt..." -ForegroundColor Cyan
-    & $venvPython -m pip install --upgrade pip
-    & $venvPython -m pip install -r requirements.txt
-    Write-Host "[*] Dependencies installed successfully." -ForegroundColor Green
+$appRunner = $pythonCmd
+
+if ($hasDependencies) {
+    Write-Host "[*] Environment dependencies verified successfully." -ForegroundColor Green
+} else {
+    # 3. Setup .venv for isolated dependencies
+    $venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
+    $needsInstall = $false
+
+    if (Test-Path ".venv") {
+        try {
+            & $venvPython -c "import sys" 2>$null
+            if ($LASTEXITCODE -ne 0) { throw "Corrupt venv" }
+        } catch {
+            Write-Host "[!] Existing .venv is invalid. Rebuilding fresh environment..." -ForegroundColor Yellow
+            Remove-Item -Recurse -Force ".venv"
+        }
+    }
+
+    if (-not (Test-Path ".venv")) {
+        Write-Host "[*] Creating fresh virtual environment (.venv)..." -ForegroundColor Cyan
+        & $pythonCmd -m venv .venv
+        $needsInstall = $true
+    }
+
+    try {
+        & $venvPython -c "import flask, pandas, plotly, sklearn" 2>$null
+        if ($LASTEXITCODE -ne 0) { $needsInstall = $true }
+    } catch {
+        $needsInstall = $true
+    }
+
+    if ($needsInstall) {
+        Write-Host "[*] Installing dependencies from requirements.txt..." -ForegroundColor Cyan
+        & $venvPython -m pip install --upgrade pip
+        & $venvPython -m pip install -r requirements.txt
+        Write-Host "[*] Dependencies installed successfully." -ForegroundColor Green
+    }
+
+    $appRunner = $venvPython
 }
 
 # 4. Start Application
@@ -73,4 +87,4 @@ Write-Host " Press Ctrl+C to stop the server." -ForegroundColor Yellow
 Write-Host "=====================================================================" -ForegroundColor Green
 Write-Host ""
 
-& $venvPython app.py
+& $appRunner app.py

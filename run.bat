@@ -14,6 +14,12 @@ cd /d "%~dp0"
 :: -------------------------------------------------------------------------
 set "PYTHON_CMD="
 
+:: Check Anaconda dedicated kerala_tourism environment first if available
+if exist "%USERPROFILE%\anaconda3\envs\kerala_tourism\python.exe" (
+    set "PYTHON_CMD=%USERPROFILE%\anaconda3\envs\kerala_tourism\python.exe"
+    goto :PYTHON_FOUND
+)
+
 :: Try standard python command
 python --version >nul 2>&1
 if !errorlevel! equ 0 (
@@ -28,11 +34,7 @@ if !errorlevel! equ 0 (
     goto :PYTHON_FOUND
 )
 
-:: Check Anaconda in user profile
-if exist "%USERPROFILE%\anaconda3\envs\kerala_tourism\python.exe" (
-    set "PYTHON_CMD=%USERPROFILE%\anaconda3\envs\kerala_tourism\python.exe"
-    goto :PYTHON_FOUND
-)
+:: Check Anaconda base in user profile
 if exist "%USERPROFILE%\anaconda3\python.exe" (
     set "PYTHON_CMD=%USERPROFILE%\anaconda3\python.exe"
     goto :PYTHON_FOUND
@@ -67,7 +69,17 @@ exit /b 1
 echo [*] Using Python: !PYTHON_CMD!
 
 :: -------------------------------------------------------------------------
-:: 2. Verify or setup Virtual Environment (.venv)
+:: 2. Check if current Python already has all dependencies installed
+:: -------------------------------------------------------------------------
+"!PYTHON_CMD!" -c "import flask, pandas, plotly, sklearn" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo [*] Environment dependencies verified successfully.
+    set "APP_RUNNER=!PYTHON_CMD!"
+    goto :START_APP
+)
+
+:: -------------------------------------------------------------------------
+:: 3. Verify or setup Virtual Environment (.venv) for isolated install
 :: -------------------------------------------------------------------------
 set "RECREATE_VENV=0"
 
@@ -75,8 +87,8 @@ if exist ".venv" (
     :: Check if the existing .venv actually works
     ".venv\Scripts\python.exe" -c "import sys" >nul 2>&1
     if !errorlevel! neq 0 (
-        echo [!] Existing .venv is broken (e.g., copied from another PC or Python was moved).
-        echo [*] Automatically rebuilding a fresh virtual environment...
+        echo [!] Existing .venv is invalid or from another PC.
+        echo [*] Rebuilding fresh virtual environment...
         set "RECREATE_VENV=1"
         rmdir /s /q ".venv" >nul 2>&1
     )
@@ -84,7 +96,7 @@ if exist ".venv" (
 
 if not exist ".venv" (
     echo [*] Creating fresh virtual environment (.venv)...
-    !PYTHON_CMD! -m venv .venv
+    "!PYTHON_CMD!" -m venv .venv
     if !errorlevel! neq 0 (
         echo [ERROR] Failed to create virtual environment!
         pause
@@ -97,9 +109,8 @@ if not exist ".venv" (
 )
 
 :: -------------------------------------------------------------------------
-:: 3. Check / Install dependencies
+:: 4. Check / Install dependencies inside .venv
 :: -------------------------------------------------------------------------
-:: Test if primary packages are installed
 ".venv\Scripts\python.exe" -c "import flask, pandas, plotly, sklearn" >nul 2>&1
 if !errorlevel! neq 0 (
     set "NEEDS_INSTALL=1"
@@ -118,9 +129,12 @@ if "!NEEDS_INSTALL!"=="1" (
     echo [*] All dependencies installed successfully.
 )
 
+set "APP_RUNNER=.venv\Scripts\python.exe"
+
 :: -------------------------------------------------------------------------
-:: 4. Start the Application
+:: 5. Start the Application
 :: -------------------------------------------------------------------------
+:START_APP
 echo.
 echo =====================================================================
 echo  Starting server at http://127.0.0.1:5000 ...
@@ -129,7 +143,7 @@ echo  Press Ctrl+C to stop the server when done.
 echo =====================================================================
 echo.
 
-".venv\Scripts\python.exe" app.py
+"!APP_RUNNER!" app.py
 
 if !errorlevel! neq 0 (
     echo.
