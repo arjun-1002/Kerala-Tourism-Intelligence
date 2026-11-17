@@ -3,6 +3,8 @@
 An end-to-end data science pipeline and interactive Flask web application analyzing **25 major tourist destinations across Kerala**. The project combines visitor footfall growth (2022–2024), accommodation & hospitality supply counts, Google Trends India search demand (2021–2026), K-Means destination segmentation, infrastructure gap scoring, and ROI profitability estimation for tourism entrepreneurs.
 
 Main Repo Link: https://github.com/arjun-1002/Kerala-Tourism-Intelligence
+
+WEBSITE LINK: https://kerala-tourism-business-intelligence-1.onrender.com/
 ---
 
 ## 🚀 Quick Start (Easiest Way to Run)
