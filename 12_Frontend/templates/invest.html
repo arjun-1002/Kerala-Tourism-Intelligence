@@ -1,0 +1,541 @@
+{% extends 'base.html' %}
+{% set active_page = 'invest' %}
+
+{% block title %}Venture Marketplace &amp; Investor Connect &middot; Kerala Tourism Intelligence{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:1.25rem;">
+    <span class="page-eyebrow">Venture Marketplace &amp; Capital Connect</span>
+    <h1 class="page-title">Kerala Tourism Investor &amp; Venture Marketplace</h1>
+    <p class="page-lead">
+        A verified two-sided dealflow platform connecting Kerala tourism entrepreneurs seeking growth capital with private and NRI investors. Every deal is grounded in real footfall data, cluster gap analysis, and automated commission escrow.
+    </p>
+</div>
+
+<!-- =========================================================================
+     MARKETPLACE HIGHLIGHT KPIS
+     ========================================================================= -->
+<div class="kpi-grid" style="margin-bottom:1.5rem;">
+    <div class="kpi-card">
+        <span class="kpi-label">Total Pipeline Goal</span>
+        <div class="kpi-value">{{ kpis.total_pipeline_inr }}</div>
+        <div class="kpi-footnote">Combined capital seeking deployment across Kerala</div>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Capital Pledged So Far</span>
+        <div class="kpi-value" style="color:var(--forest);">{{ kpis.total_raised_inr }}</div>
+        <div class="kpi-footnote">Committed by active domestic &amp; NRI syndicates</div>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Active Showcase Deals</span>
+        <div class="kpi-value">{{ kpis.active_ventures }}</div>
+        <div class="kpi-footnote">Verified hospitality, backwater &amp; eco-ventures</div>
+    </div>
+    <div class="kpi-card" style="border-left:3px solid var(--gold);">
+        <span class="kpi-label">Automated Platform Commission</span>
+        <div class="kpi-value" style="color:var(--gold-ink);">{{ kpis.commission_rate_display }}</div>
+        <div class="kpi-footnote">Collected automatically on successfully funded capital ({{ kpis.total_commission_earned_inr }} accrued)</div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     DUAL ACTION BANNER & HOW COMMISSION WORKS
+     ========================================================================= -->
+<div class="dossier-card" style="margin-bottom:1.5rem; background:linear-gradient(135deg, #fbfaf6 0%, #f4f2ea 100%); border:1px solid var(--border-strong);">
+    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;">
+        <div style="max-width:680px;">
+            <div style="display:inline-flex; align-items:center; gap:6px; background:var(--emerald-soft); color:var(--forest); font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:9999px; margin-bottom:8px;">
+                <span>🤝 Two-Sided Tourism Partnership</span>
+            </div>
+            <h3 style="font-family:'Fraunces', Georgia, serif; font-size:1.25rem; font-weight:700; color:var(--ink); margin-bottom:6px;">
+                Have a tourism project or looking to invest in God's Own Country?
+            </h3>
+            <p style="font-size:0.86rem; color:var(--ink-2); line-height:1.55; margin:0;">
+                Entrepreneurs get access to direct capital without high bank interest; investors get data-backed, verified hospitality deals; and the platform automatically collects a <strong>3.0% facilitation fee</strong> upon investment execution.
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="button" class="btn-primary" onclick="openPitchModal()" style="padding:10px 18px; font-size:0.85rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Pitch Your Venture (Seek Capital)
+            </button>
+            <button type="button" class="btn-outline" onclick="toggleCommissionExplainer()" style="padding:10px 16px; font-size:0.85rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                How Automated Commission Works
+            </button>
+        </div>
+    </div>
+
+    <!-- COLLAPSIBLE EXPLAINER -->
+    <div id="commissionExplainer" style="display:none; margin-top:1.25rem; padding-top:1.25rem; border-top:1px dashed var(--border-strong);">
+        <h4 style="font-size:0.92rem; font-weight:700; color:var(--forest); margin-bottom:10px;">The 3-Step Automated Commission &amp; Escrow Flow</h4>
+        <div class="grid-3" style="gap:14px;">
+            <div style="background:#ffffff; padding:14px; border-radius:10px; border:1px solid var(--border);">
+                <div style="font-size:0.78rem; font-weight:700; color:var(--gold-ink); margin-bottom:4px;">STEP 1 &middot; VERIFIED LISTING</div>
+                <strong style="font-size:0.9rem; color:var(--ink);">Data-Backed Due Diligence</strong>
+                <p style="font-size:0.8rem; color:var(--ink-2); margin-top:6px; line-height:1.45;">
+                    The proponent lists their land, homestay, or resort plan. Our ML intelligence tags it with local footfall metrics (2022–2024 growth) and supply gap scores.
+                </p>
+            </div>
+            <div style="background:#ffffff; padding:14px; border-radius:10px; border:1px solid var(--border);">
+                <div style="font-size:0.78rem; font-weight:700; color:var(--emerald); margin-bottom:4px;">STEP 2 &middot; PLEDGE &amp; AUTO-SPLIT</div>
+                <strong style="font-size:0.9rem; color:var(--ink);">3.0% Platform Fee Collection</strong>
+                <p style="font-size:0.8rem; color:var(--ink-2); margin-top:6px; line-height:1.45;">
+                    When an investor pledges e.g. <strong>₹10,00,000</strong>, the payment gateway automatically routes <strong>₹30,000 (3%)</strong> to platform revenue and <strong>₹9,70,000 (97%)</strong> to the project escrow.
+                </p>
+            </div>
+            <div style="background:#ffffff; padding:14px; border-radius:10px; border:1px solid var(--border);">
+                <div style="font-size:0.78rem; font-weight:700; color:var(--blue); margin-bottom:4px;">STEP 3 &middot; MILESTONE ESCROW</div>
+                <strong style="font-size:0.9rem; color:var(--ink);">Milestone Disbursements</strong>
+                <p style="font-size:0.8rem; color:var(--ink-2); margin-top:6px; line-height:1.45;">
+                    Funds are released to the entrepreneur upon verified execution milestones (licenses, civil work), while the investor receives legal partnership certificates and revenue-share payouts.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     FILTER & SEARCH BAR
+     ========================================================================= -->
+<div class="dossier-card" style="margin-bottom:1.5rem; padding:14px 18px;">
+    <form method="GET" action="/invest" id="investFilterForm" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+            <div>
+                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-3); display:block; margin-bottom:3px; text-transform:uppercase;">Destination:</label>
+                <select name="destination" class="filter-select" onchange="document.getElementById('investFilterForm').submit()" style="padding:6px 12px; font-size:0.82rem; border-radius:8px; border:1.5px solid var(--border-strong);">
+                    {% for d in destinations %}
+                    <option value="{{ d }}" {% if selected_dest == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-3); display:block; margin-bottom:3px; text-transform:uppercase;">Venture Sector:</label>
+                <select name="category" class="filter-select" onchange="document.getElementById('investFilterForm').submit()" style="padding:6px 12px; font-size:0.82rem; border-radius:8px; border:1.5px solid var(--border-strong);">
+                    {% for c in categories %}
+                    <option value="{{ c }}" {% if selected_cat == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div>
+            <input type="text" id="ventureSearchInput" onkeyup="filterVenturesClientSide()" placeholder="Filter deals by keyword..." style="padding:7px 14px; font-size:0.82rem; border-radius:var(--radius-pill); border:1.5px solid var(--border-strong); width:240px; outline:none;" />
+        </div>
+    </form>
+</div>
+
+<!-- =========================================================================
+     VENTURE DEALS SHOWCASE GRID
+     ========================================================================= -->
+<div class="grid-3" id="venturesGrid" style="gap:20px; margin-bottom:2.5rem;">
+    {% for v in ventures %}
+    <article class="media-card venture-card" data-title="{{ v.title | lower }}" data-dest="{{ v.destination | lower }}" data-cat="{{ v.category | lower }}" style="display:flex; flex-direction:column; border-radius:14px; overflow:hidden; border:1px solid var(--border); background:#ffffff; box-shadow:0 4px 14px rgba(0,0,0,0.04);">
+        <!-- Card Image & Overlay Badges -->
+        <div class="media-card-img-wrap" style="height:190px; position:relative;">
+            <img src="{{ v.photo_url }}" alt="{{ v.title }}" style="width:100%; height:100%; object-fit:cover;">
+            <span class="media-card-tag" style="position:absolute; top:12px; left:12px; background:rgba(21, 71, 52, 0.88); color:#ffffff; font-size:0.7rem; font-weight:700; padding:3px 9px; border-radius:6px; backdrop-filter:blur(4px);">
+                {{ v.category }}
+            </span>
+            <span style="position:absolute; top:12px; right:12px; background:rgba(247, 243, 232, 0.95); color:var(--forest); font-size:0.72rem; font-weight:800; padding:3px 8px; border-radius:6px; border:1px solid var(--gold); box-shadow:0 2px 6px rgba(0,0,0,0.12);">
+                ★ {{ v.viability_score }}/100 Viability
+            </span>
+        </div>
+
+        <!-- Card Body -->
+        <div class="media-card-body" style="padding:16px; display:flex; flex-direction:column; flex:1;">
+            <div style="font-size:0.75rem; color:var(--ink-3); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                <strong>{{ v.destination }}</strong> &middot; {{ v.district }} District
+            </div>
+            <h3 style="font-family:'Fraunces', Georgia, serif; font-size:1.1rem; font-weight:700; color:var(--ink); line-height:1.3; margin-bottom:8px;">
+                {{ v.title }}
+            </h3>
+
+            <!-- Proponent info -->
+            <div style="display:flex; align-items:center; gap:6px; font-size:0.77rem; color:var(--ink-2); margin-bottom:12px; background:var(--surface-muted); padding:6px 10px; border-radius:6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--forest)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span><strong>{{ v.proponent_name }}</strong> &middot; {{ v.proponent_role }}</span>
+            </div>
+
+            <!-- Pitch Summary -->
+            <p style="font-size:0.81rem; color:var(--ink-2); line-height:1.48; margin-bottom:14px; flex:1;">
+                {{ v.summary }}
+            </p>
+
+            <!-- Funding Progress Bar -->
+            <div style="margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.76rem; margin-bottom:4px;">
+                    <span style="font-weight:700; color:var(--forest);">₹{{ "{:,.0f}".format(v.raised_amount) }} raised</span>
+                    <span style="color:var(--ink-3);">Goal: ₹{{ "{:,.0f}".format(v.target_amount) }}</span>
+                </div>
+                <div style="width:100%; height:8px; background:var(--surface-sage); border-radius:9999px; overflow:hidden;">
+                    <div style="width:{{ v.funding_progress }}%; height:100%; background:linear-gradient(90deg, var(--emerald), var(--forest)); border-radius:9999px; transition:width 0.4s ease;"></div>
+                </div>
+                <div style="text-align:right; font-size:0.71rem; font-weight:700; color:var(--emerald); margin-top:3px;">
+                    {{ v.funding_progress }}% Funded &middot; {{ v.status }}
+                </div>
+            </div>
+
+            <!-- Key Investment Terms Grid -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.77rem; background:#f9f8f4; border:1px solid var(--border); padding:10px; border-radius:8px; margin-bottom:14px;">
+                <div>
+                    <span style="color:var(--ink-3); display:block; font-size:0.7rem;">Min Ticket Size</span>
+                    <strong style="color:var(--ink); font-size:0.86rem;">₹{{ "{:,.0f}".format(v.min_ticket) }}</strong>
+                </div>
+                <div>
+                    <span style="color:var(--ink-3); display:block; font-size:0.7rem;">Projected ROI</span>
+                    <strong style="color:var(--forest); font-size:0.86rem;">{{ v.projected_roi }}</strong>
+                </div>
+                <div>
+                    <span style="color:var(--ink-3); display:block; font-size:0.7rem;">Offer Model</span>
+                    <span style="color:var(--ink-2); font-weight:600;">{{ v.equity_or_share }}</span>
+                </div>
+                <div>
+                    <span style="color:var(--ink-3); display:block; font-size:0.7rem;">Payback Period</span>
+                    <span style="color:var(--ink-2); font-weight:600;">{{ v.payback_period }}</span>
+                </div>
+            </div>
+
+            <!-- Automated Commission Notice -->
+            <div style="font-size:0.72rem; color:var(--gold-ink); background:var(--gold-soft); padding:6px 9px; border-radius:6px; margin-bottom:14px; border:1px solid rgba(184, 146, 42, 0.25); display:flex; align-items:center; justify-content:space-between;">
+                <span><strong>Platform Fee:</strong> 3.0% (Automated split)</span>
+                <span>Net deployed: 97.0%</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; gap:8px; margin-top:auto;">
+                <button type="button" class="btn-primary" onclick="openPledgeModal('{{ v.id }}', '{{ v.title | escape }}', {{ v.min_ticket }}, '{{ v.equity_or_share | escape }}')" style="flex:1; padding:9px 12px; font-size:0.82rem; justify-content:center;">
+                    Pledge Investment &#8594;
+                </button>
+                <a href="/destinations?highlight={{ v.destination | urlencode }}" class="btn-outline" title="View destination intelligence" style="padding:9px 12px; font-size:0.82rem; display:inline-flex; align-items:center; justify-content:center;">
+                    Market Data
+                </a>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+<!-- =========================================================================
+     MODAL 1: PLEDGE INVESTMENT & COMMISSION BREAKDOWN
+     ========================================================================= -->
+<div id="pledgeModal" class="ai-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(13, 26, 19, 0.6); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#ffffff; width:520px; max-width:100%; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.3); border:1px solid var(--border-strong);">
+        <div style="background:linear-gradient(135deg, #154734, #0d2a1d); color:#ffffff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="font-family:'Fraunces', Georgia, serif; font-size:1.15rem; font-weight:700; margin:0;">Pledge Tourism Investment</h3>
+                <p style="font-size:0.75rem; color:rgba(255,255,255,0.75); margin-top:2px;">Automated Escrow &amp; Commission Routing</p>
+            </div>
+            <button type="button" onclick="closePledgeModal()" style="background:none; border:none; color:#ffffff; font-size:1.25rem; cursor:pointer;">&times;</button>
+        </div>
+
+        <form id="pledgeForm" onsubmit="submitPledge(event)" style="padding:20px;">
+            <input type="hidden" id="pledgeVentureId" name="venture_id" />
+            
+            <div style="margin-bottom:12px; background:var(--surface-muted); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+                <div style="font-size:0.72rem; color:var(--ink-3); text-transform:uppercase; font-weight:700;">Selected Venture</div>
+                <strong id="pledgeVentureTitle" style="font-size:0.92rem; color:var(--ink);"></strong>
+                <div id="pledgeVentureTerms" style="font-size:0.78rem; color:var(--forest); margin-top:2px;"></div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Your Full Name *</label>
+                    <input type="text" id="pledgeInvestorName" required placeholder="e.g. Rahul Menon" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Email Address *</label>
+                    <input type="email" id="pledgeInvestorEmail" required placeholder="e.g. rahul@example.com" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Pledge Amount (INR ₹) *</label>
+                <input type="number" id="pledgeAmount" required min="50000" step="10000" oninput="updateCommissionLivePreview()" style="width:100%; padding:9px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.92rem; font-weight:700; color:var(--forest);" />
+                <span id="pledgeMinNote" style="font-size:0.71rem; color:var(--ink-3); margin-top:2px; display:block;"></span>
+            </div>
+
+            <!-- LIVE COMMISSION CALCULATION BOX -->
+            <div style="background:#f4f7f4; border:1.5px solid #c7dcd0; border-radius:10px; padding:12px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:6px;">
+                    <span style="color:var(--ink-2);">Gross Investment Pledged:</span>
+                    <strong id="splitGross" style="color:var(--ink);">₹0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:6px;">
+                    <span style="color:var(--gold-ink); font-weight:600;">Platform Facilitation Fee (3.0%):</span>
+                    <strong id="splitFee" style="color:var(--gold-ink);">₹0</strong>
+                </div>
+                <div style="border-top:1px dashed #b9d3c4; padding-top:6px; display:flex; justify-content:space-between; font-size:0.84rem;">
+                    <span style="color:var(--forest); font-weight:700;">Net Capital to Project Escrow:</span>
+                    <strong id="splitNet" style="color:var(--forest); font-size:0.92rem;">₹0</strong>
+                </div>
+                <div style="font-size:0.68rem; color:var(--ink-3); margin-top:6px; line-height:1.35;">
+                    ℹ️ The 3% platform facilitation fee is automatically routed to platform maintenance &amp; legal contract generation. 97% goes directly to the project account upon milestone signoff.
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--ink-2); cursor:pointer;">
+                    <input type="checkbox" id="pledgeIsNri" />
+                    <span>I am an NRI / Overseas Investor (Facilitates FEMA/NRE compliance routing)</span>
+                </label>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="button" onclick="closePledgeModal()" class="btn-outline" style="padding:8px 16px; font-size:0.82rem;">Cancel</button>
+                <button type="submit" id="pledgeSubmitBtn" class="btn-primary" style="padding:8px 20px; font-size:0.84rem;">Confirm &amp; Pledge Capital</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 2: PITCH A NEW TOURISM VENTURE (SEEK CAPITAL)
+     ========================================================================= -->
+<div id="pitchModal" class="ai-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(13, 26, 19, 0.6); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#ffffff; width:580px; max-width:100%; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.3); border:1px solid var(--border-strong); max-height:90vh; display:flex; flex-direction:column;">
+        <div style="background:linear-gradient(135deg, #154734, #0d2a1d); color:#ffffff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="font-family:'Fraunces', Georgia, serif; font-size:1.15rem; font-weight:700; margin:0;">Pitch Your Tourism Venture</h3>
+                <p style="font-size:0.75rem; color:rgba(255,255,255,0.75); margin-top:2px;">Raise Growth Capital from Private &amp; NRI Investors</p>
+            </div>
+            <button type="button" onclick="closePitchModal()" style="background:none; border:none; color:#ffffff; font-size:1.25rem; cursor:pointer;">&times;</button>
+        </div>
+
+        <form id="pitchForm" onsubmit="submitPitch(event)" style="padding:20px; overflow-y:auto; flex:1;">
+            <div style="margin-bottom:12px;">
+                <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Venture Title *</label>
+                <input type="text" id="pitchTitle" required placeholder="e.g. Wayanad Cloud Nine Bamboo Homestay" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Destination Hub *</label>
+                    <select id="pitchDestination" required style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;">
+                        {% for d in destinations %}
+                        {% if d != "All" %}
+                        <option value="{{ d }}">{{ d }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Venture Sector *</label>
+                    <select id="pitchCategory" required style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;">
+                        <option value="Boutique Homestay">Boutique Homestay</option>
+                        <option value="Eco-Resort & Wellness">Eco-Resort &amp; Wellness</option>
+                        <option value="Houseboat Cruise">Houseboat Cruise</option>
+                        <option value="Experiential Cafe & Wellness">Experiential Cafe &amp; Wellness</option>
+                        <option value="Adventure Tourism">Adventure Tourism</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Target Funding (INR ₹) *</label>
+                    <input type="number" id="pitchTarget" required min="200000" step="50000" placeholder="e.g. 2500000" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Minimum Ticket Size (INR ₹) *</label>
+                    <input type="number" id="pitchMinTicket" required min="50000" step="10000" placeholder="e.g. 200000" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Offer to Investors *</label>
+                    <input type="text" id="pitchEquity" required placeholder="e.g. 15% Equity or 14% Rev-Share" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Target Payback Horizon</label>
+                    <input type="text" id="pitchPayback" placeholder="e.g. 2.1 Years" value="2.2 Years" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Your Name / Property Owner *</label>
+                    <input type="text" id="pitchProponent" required placeholder="e.g. K. Ramanathan" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+                <div>
+                    <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Your Background / Role *</label>
+                    <input type="text" id="pitchRole" required placeholder="e.g. Landowner / Licensed Host" style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem;" />
+                </div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:0.77rem; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">Venture Overview &amp; Proposal Pitch *</label>
+                <textarea id="pitchSummary" required rows="3" placeholder="Describe the location, land size, planned facilities, and expected guest profile..." style="width:100%; padding:8px 12px; border:1.5px solid var(--border-strong); border-radius:8px; font-size:0.84rem; font-family:inherit;"></textarea>
+            </div>
+
+            <div style="background:var(--gold-soft); padding:8px 12px; border-radius:8px; margin-bottom:16px; font-size:0.72rem; color:var(--gold-ink); border:1px solid rgba(184, 146, 42, 0.3);">
+                ⚖️ <strong>Platform Terms:</strong> Listing is free. A 3.0% commission is deducted only when capital is successfully funded and disbursed.
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="button" onclick="closePitchModal()" class="btn-outline" style="padding:8px 16px; font-size:0.82rem;">Cancel</button>
+                <button type="submit" id="pitchSubmitBtn" class="btn-primary" style="padding:8px 20px; font-size:0.84rem;">Publish Listing &#8594;</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentMinTicket = 200000;
+
+function toggleCommissionExplainer() {
+    const el = document.getElementById("commissionExplainer");
+    if (!el) return;
+    el.style.display = el.style.display === "none" ? "block" : "none";
+}
+
+function filterVenturesClientSide() {
+    const q = (document.getElementById("ventureSearchInput").value || "").toLowerCase().trim();
+    const cards = document.querySelectorAll(".venture-card");
+    cards.forEach(card => {
+        const title = card.getAttribute("data-title") || "";
+        const dest = card.getAttribute("data-dest") || "";
+        const cat = card.getAttribute("data-cat") || "";
+        if (!q || title.includes(q) || dest.includes(q) || cat.includes(q)) {
+            card.style.display = "flex";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+
+function openPledgeModal(ventureId, title, minTicket, terms) {
+    currentMinTicket = Number(minTicket) || 100000;
+    document.getElementById("pledgeVentureId").value = ventureId;
+    document.getElementById("pledgeVentureTitle").innerText = title;
+    document.getElementById("pledgeVentureTerms").innerText = `Terms: ${terms} · Minimum Ticket: ₹${currentMinTicket.toLocaleString()}`;
+    document.getElementById("pledgeAmount").value = currentMinTicket;
+    document.getElementById("pledgeMinNote").innerText = `Minimum allowed pledge for this venture is ₹${currentMinTicket.toLocaleString()}`;
+    updateCommissionLivePreview();
+
+    const modal = document.getElementById("pledgeModal");
+    modal.style.display = "flex";
+}
+
+function closePledgeModal() {
+    document.getElementById("pledgeModal").style.display = "none";
+}
+
+function updateCommissionLivePreview() {
+    const amt = Number(document.getElementById("pledgeAmount").value) || 0;
+    const fee = Math.round(amt * 0.03);
+    const net = amt - fee;
+
+    document.getElementById("splitGross").innerText = `₹${amt.toLocaleString()}`;
+    document.getElementById("splitFee").innerText = `₹${fee.toLocaleString()}`;
+    document.getElementById("splitNet").innerText = `₹${net.toLocaleString()}`;
+}
+
+function submitPledge(e) {
+    e.preventDefault();
+    const vId = document.getElementById("pledgeVentureId").value;
+    const name = document.getElementById("pledgeInvestorName").value.trim();
+    const email = document.getElementById("pledgeInvestorEmail").value.trim();
+    const amount = Number(document.getElementById("pledgeAmount").value);
+    const isNri = document.getElementById("pledgeIsNri").checked;
+
+    if (amount < currentMinTicket) {
+        alert(`Pledge amount must be at least ₹${currentMinTicket.toLocaleString()}`);
+        return;
+    }
+
+    const btn = document.getElementById("pledgeSubmitBtn");
+    btn.disabled = true;
+    btn.innerText = "Securing Pledge...";
+
+    fetch("/api/ventures/pledge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            venture_id: vId,
+            investor_name: name,
+            investor_email: email,
+            amount: amount,
+            is_nri: isNri
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            alert(`Error: ${data.error}`);
+            btn.disabled = false;
+            btn.innerText = "Confirm & Pledge Capital";
+        } else {
+            alert(`🎉 Success! Your investment pledge of ₹${amount.toLocaleString()} has been recorded in escrow.\n\nPlatform Fee (3%): ₹${data.split.platform_fee.toLocaleString()}\nNet Capital Deployed: ₹${data.split.net_capital_to_venture.toLocaleString()}\n\nOur legal desk will contact you at ${email} with the partnership agreement.`);
+            window.location.reload();
+        }
+    })
+    .catch(err => {
+        alert("Network error. Please try again.");
+        btn.disabled = false;
+        btn.innerText = "Confirm & Pledge Capital";
+    });
+}
+
+function openPitchModal() {
+    document.getElementById("pitchModal").style.display = "flex";
+}
+
+function closePitchModal() {
+    document.getElementById("pitchModal").style.display = "none";
+}
+
+function submitPitch(e) {
+    e.preventDefault();
+    const title = document.getElementById("pitchTitle").value.trim();
+    const dest = document.getElementById("pitchDestination").value;
+    const cat = document.getElementById("pitchCategory").value;
+    const target = Number(document.getElementById("pitchTarget").value);
+    const minTicket = Number(document.getElementById("pitchMinTicket").value);
+    const equity = document.getElementById("pitchEquity").value.trim();
+    const payback = document.getElementById("pitchPayback").value.trim();
+    const proponent = document.getElementById("pitchProponent").value.trim();
+    const role = document.getElementById("pitchRole").value.trim();
+    const summary = document.getElementById("pitchSummary").value.trim();
+
+    const btn = document.getElementById("pitchSubmitBtn");
+    btn.disabled = true;
+    btn.innerText = "Publishing...";
+
+    fetch("/api/ventures/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            title: title,
+            destination: dest,
+            category: cat,
+            target_amount: target,
+            min_ticket: minTicket,
+            equity_or_share: equity,
+            payback_period: payback,
+            proponent_name: proponent,
+            proponent_role: role,
+            summary: summary
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            alert(`Error: ${data.error}`);
+            btn.disabled = false;
+            btn.innerText = "Publish Listing →";
+        } else {
+            alert("🚀 Congratulations! Your tourism venture has been published to the investor marketplace!");
+            window.location.reload();
+        }
+    })
+    .catch(err => {
+        alert("Network error. Please try again.");
+        btn.disabled = false;
+        btn.innerText = "Publish Listing →";
+    });
+}
+</script>
+{% endblock %}

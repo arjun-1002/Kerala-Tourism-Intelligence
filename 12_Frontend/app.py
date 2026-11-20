@@ -26,6 +26,14 @@ from recommendations import (
     get_opportunity_tag,
 )
 from assistant import KeralaTourismAssistant
+from marketplace import (
+    get_all_ventures,
+    get_venture_by_id,
+    create_venture,
+    record_pledge,
+    calculate_commission,
+    get_marketplace_kpis,
+)
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -449,7 +457,38 @@ def google_trends():
     )
 
 # ==============================================================================
-# ROUTE 11: ABOUT PROJECT
+# ROUTE 11: VENTURE MARKETPLACE & INVESTOR CONNECT
+# ==============================================================================
+@app.route("/invest")
+def invest():
+    selected_dest = request.args.get("destination", "All").strip()
+    selected_cat = request.args.get("category", "All").strip()
+
+    ventures = get_all_ventures(destination=selected_dest, category=selected_cat)
+    kpis = get_marketplace_kpis()
+    destinations = ["All"] + sorted(master_df["Destination"].unique().tolist())
+    categories = [
+        "All",
+        "Boutique Homestay",
+        "Eco-Resort & Wellness",
+        "Houseboat Cruise",
+        "Experiential Cafe & Wellness",
+        "Adventure Tourism"
+    ]
+
+    return render_template(
+        "invest.html",
+        ventures=ventures,
+        kpis=kpis,
+        destinations=destinations,
+        categories=categories,
+        selected_dest=selected_dest,
+        selected_cat=selected_cat,
+        active_page="invest"
+    )
+
+# ==============================================================================
+# ROUTE 12: ABOUT PROJECT
 # ==============================================================================
 @app.route("/about")
 def about():
@@ -533,6 +572,57 @@ def api_assistant_chat():
 
     response = ai_assistant.answer_query(message, conversation_history=history)
     return jsonify(response)
+
+# ==============================================================================
+# ROUTE 13: VENTURE MARKETPLACE REST APIS
+# ==============================================================================
+@app.route("/api/ventures/calculate-commission", methods=["GET"])
+def api_venture_calculate_commission():
+    """Calculates live platform fee breakdown and net deployed capital."""
+    try:
+        amount = float(request.args.get("amount", 500000))
+    except (ValueError, TypeError):
+        amount = 500000.0
+    return jsonify(calculate_commission(amount))
+
+@app.route("/api/ventures/pledge", methods=["POST"])
+def api_venture_pledge():
+    """Records investor pledge with automatic platform commission split."""
+    payload = request.get_json() or {}
+    v_id = payload.get("venture_id")
+    name = payload.get("investor_name")
+    email = payload.get("investor_email")
+    notes = payload.get("notes", "")
+    is_nri = bool(payload.get("is_nri", False))
+
+    try:
+        amt = float(payload.get("amount", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid investment amount"}), 400
+
+    if not v_id or not name or not email or amt <= 0:
+        return jsonify({"error": "Please provide your name, email, and a valid pledge amount."}), 400
+
+    try:
+        result = record_pledge(v_id, name, email, amt, is_nri=is_nri, notes=notes)
+        return jsonify(result)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
+@app.route("/api/ventures/submit", methods=["POST"])
+def api_venture_submit():
+    """Receives new venture proposals from entrepreneurs and hosts."""
+    payload = request.get_json() or {}
+    if not payload.get("title") or not payload.get("destination"):
+        return jsonify({"error": "Venture title and destination are required"}), 400
+
+    try:
+        new_v = create_venture(payload, master_df=master_df)
+        return jsonify({"success": True, "venture": new_v})
+    except Exception as e:
+        return jsonify({"error": f"Submission failed: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -14,6 +14,7 @@ from typing import Dict, Any, List, Optional
 
 SUGGESTIONS = [
     {"label": "Top 5 Growth Destinations", "query": "Which destinations had the fastest visitor growth between 2022 and 2024?"},
+    {"label": "Venture Marketplace & Commission", "query": "How does the Kerala Tourism investor marketplace and automated commission work?"},
     {"label": "Homestay Investment & ROI", "query": "What is the capital requirement and expected ROI for a boutique homestay in Kerala?"},
     {"label": "Wayanad Venture Advisory", "query": "What business venture is recommended for Wayanad and why?"},
     {"label": "Munnar vs Wayanad Comparison", "query": "Compare Munnar and Wayanad for tourism footfall and hospitality opportunities."},
@@ -164,7 +165,11 @@ class KeralaTourismAssistant:
         # 3. Check for Specific Destination Mention
         mentioned_dest = self._extract_destination(q_lower)
 
-        # 4. ROI & Financial / Investment Calculation Intent
+        # 4. Marketplace & Commission Intent
+        if any(w in q_lower for w in ["marketplace", "commission", "facilitation fee", "pledge", "investor connect", "pitch venture", "seek capital", "looking for investment", "willing to invest", "two-sided"]):
+            return self._build_marketplace_response()
+
+        # 5. ROI & Financial / Investment Calculation Intent
         if any(w in q_lower for w in ["roi", "payback", "capital", "cost to start", "investment", "profit", "margins", "break-even", "how much money"]):
             if mentioned_dest:
                 return self._build_destination_investment_response(mentioned_dest)
@@ -341,6 +346,22 @@ class KeralaTourismAssistant:
             "   - **Estimated Payback Period:** **~2.4 Years**\n\n"
             "You can simulate your exact setup with custom room count, occupancy rate, and monthly expenses:\n\n"
             "👉 [**Launch Interactive ROI & Cash Flow Calculator**](/calculator)"
+        )
+
+    def _build_marketplace_response(self) -> str:
+        return (
+            "### 🤝 Kerala Tourism Venture Marketplace & Investor Connect\n\n"
+            "Our platform features a **verified two-sided investment dealflow** connecting local tourism entrepreneurs with private and NRI investors:\n\n"
+            "1. **For Entrepreneurs & Property Owners (Seek Investment):**\n"
+            "   - List planned homestays, eco-resorts, solar houseboats, or cliffside cafes.\n"
+            "   - Highlight required ticket sizes, equity or revenue-share models, and payback horizons.\n\n"
+            "2. **For Investors (Explore & Pledge Capital):**\n"
+            "   - Browse verified deals tagged with real destination footfall metrics and cluster viability scores.\n"
+            "   - Minimum ticket sizes start from **₹2,00,000** to **₹5,00,000**.\n\n"
+            "3. **Automated 3.0% Platform Commission:**\n"
+            "   - When an investor pledges e.g. **₹10,00,000**, the platform automatically retains **3.0% (₹30,000)** as a facilitation fee.\n"
+            "   - The remaining **₹9,70,000 (97.0%)** is deployed into project escrow and disbursed on milestone verified completion.\n\n"
+            "👉 [**Open the Venture &amp; Investor Marketplace**](/invest) &middot; [**Calculate Custom ROI**](/calculator)"
         )
 
     def _build_top_opportunities_response(self) -> str:

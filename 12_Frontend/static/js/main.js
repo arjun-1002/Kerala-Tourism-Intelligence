@@ -283,6 +283,7 @@ let isAssistantSending = false;
 
 const DEFAULT_SUGGESTIONS = [
   { label: "Top 5 Growth Destinations", query: "Which destinations had the fastest visitor growth between 2022 and 2024?" },
+  { label: "🤝 Venture Marketplace & Commission", query: "How does the Kerala Tourism investor marketplace and automated commission work?" },
   { label: "Homestay Investment & ROI", query: "What is the capital requirement and expected ROI for a boutique homestay in Kerala?" },
   { label: "Wayanad Venture Advisory", query: "What business venture is recommended for Wayanad and why?" },
   { label: "Munnar vs Wayanad", query: "Compare Munnar and Wayanad for tourism footfall and hospitality opportunities." },

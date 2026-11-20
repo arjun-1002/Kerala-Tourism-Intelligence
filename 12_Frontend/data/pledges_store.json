@@ -1,0 +1,17 @@
+[
+  {
+    "pledge_id": "pld-5a7b4d0d",
+    "venture_id": "v-wayanad-01",
+    "venture_title": "Wayanad Rainforest Eco-Treehouses & Wellness Retreat",
+    "destination": "Wayanad",
+    "investor_name": "Test Investor",
+    "investor_email": "test@investor.com",
+    "gross_amount": 300000.0,
+    "platform_commission": 9000.0,
+    "net_deployed_capital": 291000.0,
+    "is_nri": true,
+    "notes": "Looking forward to visiting in monsoon",
+    "status": "Confirmed & Escrowed",
+    "created_at": "2026-11-20"
+  }
+]
